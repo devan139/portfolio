@@ -1,0 +1,56 @@
+---
+import SectionHeading from '../SectionHeading.astro';
+---
+<section id="capabilities" class="section">
+  <div class="container">
+    <SectionHeading title="Capabilities" subtitle="Expertise" />
+    
+    <div class="capabilities-grid">
+      <div class="capability-card">
+        <h3>XR Development</h3>
+        <p>Building immersive VR/AR experiences and simulations.</p>
+      </div>
+      <div class="capability-card">
+        <h3>Product Engineering</h3>
+        <p>Architecting and developing robust software products from zero to one.</p>
+      </div>
+      <div class="capability-card">
+        <h3>Creative Technology</h3>
+        <p>Bridging the gap between design and technical implementation.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .section {
+    padding: 8rem 5%;
+  }
+
+  .container {
+    max-width: var(--container-width);
+    margin: 0 auto;
+  }
+
+  .capabilities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+  }
+
+  .capability-card {
+    padding: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.02);
+  }
+
+  .capability-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--color-accent);
+  }
+
+  .capability-card p {
+    color: var(--color-text-muted);
+  }
+</style>

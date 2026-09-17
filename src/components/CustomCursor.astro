@@ -1,0 +1,81 @@
+---
+---
+<div class="cursor-dot"></div>
+<div class="cursor-outline"></div>
+
+<script>
+  import { gsap } from 'gsap';
+  
+  if (typeof window !== 'undefined' && window.matchMedia('(pointer: fine)').matches) {
+    const dot = document.querySelector('.cursor-dot');
+    const outline = document.querySelector('.cursor-outline');
+    
+    // Quick setters for performance
+    const setDotX = gsap.quickSetter(dot, "x", "px");
+    const setDotY = gsap.quickSetter(dot, "y", "px");
+    const setOutlineX = gsap.quickSetter(outline, "x", "px");
+    const setOutlineY = gsap.quickSetter(outline, "y", "px");
+
+    let mouseX = 0;
+    let mouseY = 0;
+    let outlineX = 0;
+    let outlineY = 0;
+
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      setDotX(mouseX);
+      setDotY(mouseY);
+    });
+
+    gsap.ticker.add(() => {
+      // Smooth follow for the outline
+      outlineX += (mouseX - outlineX) * 0.15;
+      outlineY += (mouseY - outlineY) * 0.15;
+      setOutlineX(outlineX);
+      setOutlineY(outlineY);
+    });
+
+    // Hover effect for links
+    document.querySelectorAll('a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        gsap.to(outline, { scale: 1.5, opacity: 0.5, duration: 0.3 });
+      });
+      el.addEventListener('mouseleave', () => {
+        gsap.to(outline, { scale: 1, opacity: 1, duration: 0.3 });
+      });
+    });
+  }
+</script>
+
+<style>
+  .cursor-dot, .cursor-outline {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: var(--z-cursor);
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+  }
+
+  .cursor-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--color-accent);
+  }
+
+  .cursor-outline {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--color-accent);
+    transition: transform 0.1s ease-out; /* fallback */
+  }
+
+  /* Hide custom cursor on touch devices */
+  @media (hover: none) and (pointer: coarse) {
+    .cursor-dot, .cursor-outline {
+      display: none;
+    }
+  }
+</style>

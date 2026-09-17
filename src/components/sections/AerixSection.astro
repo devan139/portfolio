@@ -1,0 +1,91 @@
+---
+import SectionHeading from '../SectionHeading.astro';
+import { projects } from '../../data/projects';
+
+const aerixProject = projects.find(p => p.id === 'aerix');
+---
+<section id="aerix" class="section">
+  <div class="container">
+    <SectionHeading title="AERIX" subtitle="Currently Building" />
+    
+    <div class="aerix-content">
+      <div class="aerix-visual">
+        <div class="placeholder-media">
+          <span>AI Fitness Product</span>
+        </div>
+      </div>
+      
+      <div class="aerix-info">
+        <h3>{aerixProject?.title}</h3>
+        <p class="description">{aerixProject?.description}</p>
+        <p class="status">In Development</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .section {
+    padding: 8rem 5%;
+    background-color: #0F0F0F;
+  }
+
+  .container {
+    max-width: var(--container-width);
+    margin: 0 auto;
+  }
+
+  .aerix-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4rem;
+  }
+
+  @media (min-width: 1024px) {
+    .aerix-content {
+      grid-template-columns: 3fr 2fr;
+      align-items: center;
+    }
+  }
+
+  .aerix-visual {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background-color: #1A1A1A;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .placeholder-media {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+    font-family: var(--font-heading);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .aerix-info h3 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .description {
+    font-size: 1.125rem;
+    color: var(--color-text-muted);
+    margin-bottom: 2rem;
+  }
+
+  .status {
+    display: inline-block;
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+</style>

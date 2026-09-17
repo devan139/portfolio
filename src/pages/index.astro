@@ -1,0 +1,28 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import CustomCursor from '../components/CustomCursor.astro';
+import Hero from '../components/sections/Hero.astro';
+import SelectedWork from '../components/sections/SelectedWork.astro';
+import AerixSection from '../components/sections/AerixSection.astro';
+import Capabilities from '../components/sections/Capabilities.astro';
+import About from '../components/sections/About.astro';
+import Contact from '../components/sections/Contact.astro';
+import Footer from '../components/sections/Footer.astro';
+---
+
+<Layout title="DEVANARAYANAN — XR Engineer / Product Builder">
+  <CustomCursor />
+  <Navbar />
+  
+  <main>
+    <Hero />
+    <SelectedWork />
+    <AerixSection />
+    <Capabilities />
+    <About />
+    <Contact />
+  </main>
+  
+  <Footer />
+</Layout>

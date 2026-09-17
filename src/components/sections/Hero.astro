@@ -1,0 +1,95 @@
+---
+---
+<section class="hero">
+  <div class="hero-content">
+    <p class="hero-label">XR ENGINEER · PRODUCT BUILDER</p>
+    <h1 class="hero-title">
+      I BUILD WORLDS<br />
+      PEOPLE CAN STEP INTO.
+    </h1>
+  </div>
+  
+  <div class="hero-visual-container">
+    <!-- Placeholder for future Three.js / WebGL interaction -->
+    <div class="visual-placeholder"></div>
+  </div>
+</section>
+
+<script>
+  import { animateFadeIn, animateStaggerText } from '../../lib/gsap';
+  
+  // Basic entrance animation
+  document.addEventListener('DOMContentLoaded', () => {
+    animateFadeIn('.hero-label', 0.2);
+    // In a real scenario we'd split the text, but for now we'll just fade the whole h1
+    animateStaggerText('.hero-title', 0.4);
+    animateFadeIn('.hero-visual-container', 0.8);
+  });
+</script>
+
+<style>
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 5%;
+    position: relative;
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding-top: var(--header-height);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 10;
+    max-width: 900px;
+  }
+
+  .hero-label {
+    color: var(--color-accent);
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+    opacity: 0; /* for gsap */
+  }
+
+  .hero-title {
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    letter-spacing: -0.02em;
+    margin: 0;
+    text-transform: uppercase;
+    opacity: 0; /* for gsap */
+  }
+
+  .hero-visual-container {
+    position: absolute;
+    top: 50%;
+    right: 5%;
+    transform: translateY(-50%);
+    width: 40vw;
+    height: 60vh;
+    z-index: 1;
+    opacity: 0; /* for gsap */
+    pointer-events: none; /* Let clicks pass through if needed, though interactive later */
+  }
+
+  .visual-placeholder {
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, rgba(199, 255, 74, 0.05) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(40px);
+  }
+
+  @media (max-width: 1024px) {
+    .hero-visual-container {
+      width: 80vw;
+      height: 40vh;
+      top: 60%;
+      right: 10%;
+    }
+  }
+</style>

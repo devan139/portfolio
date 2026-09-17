@@ -1,0 +1,35 @@
+---
+import ProjectCard from './ProjectCard.astro';
+import type { Project } from '../data/projects';
+
+interface Props {
+  projects: Project[];
+}
+
+const { projects } = Astro.props;
+---
+<div class="project-grid">
+  {projects.map(project => (
+    <ProjectCard project={project} />
+  ))}
+</div>
+
+<style>
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--grid-gap);
+  }
+
+  @media (min-width: 1024px) {
+    .project-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 4rem 2rem;
+    }
+    
+    /* Slight stagger layout for desktop */
+    .project-grid > :nth-child(even) {
+      transform: translateY(4rem);
+    }
+  }
+</style>

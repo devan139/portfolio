@@ -1,0 +1,36 @@
+---
+import WorkEnvironment from '../WorkEnvironment.astro';
+import HorizontalWorkGallery from '../HorizontalWorkGallery.astro';
+import { projects } from '../../data/projects';
+
+// Filter for completed projects (ADNOC, BITS Pilani, VR Molecular Lab). AERIX is excluded.
+const completedProjects = projects.filter(p => p.id !== 'aerix' && p.status === 'completed');
+---
+
+<section id="work-section" class="selected-work-section">
+  <WorkEnvironment totalProjects={completedProjects.length} />
+  <HorizontalWorkGallery projects={completedProjects} />
+</section>
+
+<script>
+  import { initWorkScroll } from '../../lib/workScroll';
+  
+  // Astro runs this script deferred by default, so DOM is ready.
+  initWorkScroll();
+</script>
+
+<style>
+  .selected-work-section {
+    position: relative;
+    width: 100%;
+    background-color: var(--background-color, #0a0a0a);
+    color: var(--text-color, #ffffff);
+    /* GSAP will pin this section */
+  }
+
+  /* Global styles specifically for the custom cursor interactions within this section */
+  :global([data-cursor="VIEW"]:hover ~ .custom-cursor) {
+    /* If you have a custom cursor component that responds to these, we can hook into it. 
+       Usually managed by JS in CustomCursor.astro */
+  }
+</style>

@@ -1,0 +1,52 @@
+---
+import SectionHeading from '../SectionHeading.astro';
+---
+<section id="contact" class="section">
+  <div class="container">
+    <SectionHeading title="Let's Build" subtitle="Contact" />
+    
+    <div class="contact-content">
+      <p class="contact-text">Ready to step into a new world? Let's discuss your next project.</p>
+      <a href="mailto:hello@example.com" class="contact-link">hello@example.com</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .section {
+    padding: 8rem 5%;
+  }
+
+  .container {
+    max-width: var(--container-width);
+    margin: 0 auto;
+  }
+
+  .contact-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .contact-text {
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    color: var(--color-text-muted);
+    max-width: 600px;
+  }
+
+  .contact-link {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent);
+    text-underline-offset: 8px;
+    transition: color 0.3s ease;
+    align-self: flex-start;
+  }
+
+  .contact-link:hover {
+    color: var(--color-accent);
+  }
+</style>

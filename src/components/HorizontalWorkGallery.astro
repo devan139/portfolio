@@ -1,0 +1,55 @@
+---
+// src/components/HorizontalWorkGallery.astro
+import type { Project } from '../data/projects';
+import WorkProject from './WorkProject.astro';
+
+interface Props {
+  projects: Project[];
+}
+
+const { projects } = Astro.props;
+---
+
+<div class="horizontal-gallery-wrapper" id="work-gallery-wrapper">
+  <div class="horizontal-track" id="work-gallery-track">
+    {projects.map((project, index) => (
+      <WorkProject project={project} index={index} />
+    ))}
+  </div>
+</div>
+
+<style>
+  .horizontal-gallery-wrapper {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    /* This wrapper will be pinned by GSAP ScrollTrigger */
+  }
+
+  .horizontal-track {
+    display: flex;
+    gap: 10vw;
+    padding: 0 20vw; /* Space on left and right for entering/exiting projects */
+    height: 100%;
+    align-items: center;
+    will-change: transform;
+    /* This track will be translated horizontally by GSAP */
+  }
+
+  @media (max-width: 768px) {
+    .horizontal-gallery-wrapper {
+      height: auto;
+      overflow: visible;
+      padding-top: 6rem;
+    }
+    
+    .horizontal-track {
+      flex-direction: column;
+      padding: 0 5%;
+      gap: 0;
+    }
+  }
+</style>
