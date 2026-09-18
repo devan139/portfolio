@@ -15,9 +15,12 @@ const { totalProjects } = Astro.props;
     
     <div class="ui-right">
       <div class="project-indicator">
-        <span class="current-index">01</span>
-        <span class="separator">/</span>
-        <span class="total-index">{String(totalProjects).padStart(2, '0')}</span>
+        <div class="index-group">
+          <span class="current-index">01</span>
+          <span class="separator">/</span>
+          <span class="total-index">{String(totalProjects).padStart(2, '0')}</span>
+        </div>
+        <div class="current-category">INDUSTRIAL VR TRAINING</div>
       </div>
     </div>
     
@@ -84,15 +87,29 @@ const { totalProjects } = Astro.props;
   .project-indicator {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-end;
     font-family: 'Space Grotesk', sans-serif;
     gap: 0.5rem;
+  }
+
+  .index-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: baseline;
     color: rgba(255, 255, 255, 0.5);
   }
 
   .current-index {
     color: var(--text-color);
     font-size: 1.25rem;
+  }
+
+  .current-category {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--color-accent);
+    text-transform: uppercase;
+    text-align: right;
   }
 
   .scroll-instruction {

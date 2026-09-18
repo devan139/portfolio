@@ -65,6 +65,12 @@ button {
   cursor: pointer;
 }
 
+/* Global Focus State */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
+}
+
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

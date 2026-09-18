@@ -1,6 +1,7 @@
 ---
 // src/components/WorkProject.astro
 import type { Project } from '../data/projects';
+import { resolvePath } from '../utils/paths';
 
 interface Props {
   project: Project;
@@ -8,53 +9,104 @@ interface Props {
 }
 
 const { project, index } = Astro.props;
-const formattedIndex = String(index + 1).padStart(2, '0');
+const isAdnoc = project.id === 'adnoc-vr';
+const isBits = project.id === 'bits-pilani';
 ---
 
-<div class="work-project" data-index={index + 1}>
+<div class="work-project" data-index={index + 1} data-category={project.category}>
   <div class="project-content" data-cursor="VIEW">
-    <div class="project-visual">
-      {project.image ? (
-        <img src={project.image} alt={project.title} class="project-image" loading="lazy" />
-      ) : (
-        <div class="placeholder-visual">
-          <span class="placeholder-text">VISUAL ASSET</span>
-        </div>
-      )}
-    </div>
     
     <div class="project-info">
       <div class="project-header">
-        <span class="project-number">{formattedIndex}</span>
-        <h3 class="project-title">{project.title}</h3>
-      </div>
-      <p class="project-description">{project.description}</p>
-      <div class="project-meta">
-        <span class="project-type">{project.type}</span>
+        <span class="project-number">{project.number}</span>
+        {project.organization && <span class="project-org">{project.organization}</span>}
       </div>
       
-      <a href={`#`} class="project-link" aria-label={`View ${project.title} details`}>
+      <h3 class="project-title">{project.title}</h3>
+      <p class="project-category">{project.category}</p>
+      
+      <div class="project-details">
+        <p class="project-description">{project.description}</p>
+        
+        {project.role && (
+          <div class="detail-group">
+            <span class="detail-label">ROLE:</span> {project.role}
+          </div>
+        )}
+        
+        {project.technologies && (
+          <div class="tech-list">
+            {project.technologies.join(' · ')}
+          </div>
+        )}
+        
+        {project.confidentiality && (
+          <p class="confidentiality-note">
+            * {project.confidentiality}
+          </p>
+        )}
+      </div>
+      
+      <a href={resolvePath(`/work/${project.slug}`)} class="project-link" aria-label={`Enter ${project.title} Experience`}>
         ENTER EXPERIENCE &rarr;
       </a>
     </div>
+
+    <div class="project-visual-container">
+      <div class="project-visual">
+        {project.mediaType === 'video' && project.mediaSrc ? (
+          <video 
+            class="project-video" 
+            poster={project.poster ? resolvePath(project.poster) : ''} 
+            preload="none" 
+            controls 
+            muted 
+            loop 
+            playsinline>
+            <source src={resolvePath(project.mediaSrc)} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        ) : project.mediaType === 'abstract' ? (
+          <div class={`abstract-visual ${isAdnoc ? 'adnoc-visual' : isBits ? 'bits-visual' : ''}`}>
+             {isAdnoc && (
+               <div class="adnoc-grid">
+                 <div class="scanner-line"></div>
+               </div>
+             )}
+             {isBits && (
+               <div class="bits-geometry">
+                 <div class="shape shape-1"></div>
+                 <div class="shape shape-2"></div>
+               </div>
+             )}
+          </div>
+        ) : project.image ? (
+          <img src={resolvePath(project.image)} alt={project.title} class="project-image" loading="lazy" />
+        ) : (
+          <div class="placeholder-visual">
+            <span class="placeholder-text">VISUAL ASSET</span>
+          </div>
+        )}
+      </div>
+    </div>
+    
   </div>
 </div>
 
 <style>
   .work-project {
-    width: 60vw;
-    height: 70vh;
+    width: 80vw;
+    height: 75vh;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease;
-    opacity: 0.5; /* Default state for inactive projects */
-    transform: scale(0.9);
+    opacity: 0.3; /* Default state for inactive projects */
+    transform: scale(0.95);
   }
 
-  /* Active state managed by JS/ScrollTrigger */
   .work-project.is-active {
     opacity: 1;
     transform: scale(1);
@@ -63,27 +115,238 @@ const formattedIndex = String(index + 1).padStart(2, '0');
   .project-content {
     width: 100%;
     height: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 4rem;
+    align-items: stretch;
     cursor: pointer;
   }
 
-  .project-visual {
-    flex: 1;
-    width: 100%;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    position: relative;
-    overflow: hidden;
-    border-radius: 4px;
+  /* Info Section */
+  .project-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2rem;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .project-image {
+  .project-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .project-number {
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .project-org {
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+  }
+
+  .project-title {
+    font-size: clamp(2.5rem, 4vw, 4rem);
+    font-weight: 500;
+    line-height: 1.1;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+  }
+
+  .project-category {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    color: var(--color-accent);
+    text-transform: uppercase;
+    margin-top: -1rem;
+  }
+
+  .project-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  .project-description {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .detail-group {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  .detail-label {
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.4);
+    margin-right: 0.5rem;
+  }
+
+  .tech-list {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+  }
+
+  .confidentiality-note {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-style: italic;
+    margin-top: 1rem;
+    border-left: 2px solid rgba(255,255,255,0.1);
+    padding-left: 1rem;
+  }
+
+  .project-link {
+    margin-top: auto;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--color-text-primary);
+    border-bottom: 1px solid var(--color-text-primary);
+    padding-bottom: 0.25rem;
+    align-self: flex-start;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.4s ease, transform 0.4s ease, color 0.3s ease, border-color 0.3s ease;
+  }
+
+  .work-project.is-active .project-link {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .project-link:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  /* Visual Section */
+  .project-visual-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .project-visual {
+    width: 100%;
+    height: 100%;
+    background: #111;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .project-content:hover .project-visual {
+    transform: scale(0.98);
+  }
+
+  .project-video, .project-image, .abstract-visual {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .project-content:hover .project-video,
+  .project-content:hover .project-image,
+  .project-content:hover .abstract-visual {
+    transform: scale(1.05);
+  }
+
+  /* Abstract Visuals */
+  .abstract-visual {
+    position: relative;
+    background: #0a0a0a;
+  }
+
+  /* ADNOC Abstract */
+  .adnoc-visual .adnoc-grid {
+    position: absolute;
+    inset: 0;
+    background-size: 40px 40px;
+    background-image: 
+      linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .adnoc-visual .adnoc-grid::after {
+    content: '';
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+  }
+
+  .scanner-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba(255,255,255,0.5);
+    box-shadow: 0 0 10px rgba(255,255,255,0.3);
+    animation: scan 4s ease-in-out infinite alternate;
+  }
+
+  @keyframes scan {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(100vh); }
+  }
+
+  /* BITS Abstract */
+  .bits-visual {
+    background: #111;
+  }
+  
+  .bits-geometry {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .bits-geometry .shape {
+    position: absolute;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .bits-geometry .shape-1 {
+    width: 60%;
+    height: 60%;
+    background: linear-gradient(45deg, rgba(255,255,255,0.02), transparent);
+    transform: rotate(15deg);
+  }
+
+  .bits-geometry .shape-2 {
+    width: 40%;
+    height: 80%;
+    backdrop-filter: blur(4px);
+    border-color: rgba(255,255,255,0.2);
+    transform: rotate(-10deg);
   }
 
   .placeholder-visual {
@@ -92,7 +355,7 @@ const formattedIndex = String(index + 1).padStart(2, '0');
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.05) 100%);
+    background: #1a1a1a;
   }
 
   .placeholder-text {
@@ -102,82 +365,17 @@ const formattedIndex = String(index + 1).padStart(2, '0');
     color: rgba(255, 255, 255, 0.3);
   }
 
-  .project-content:hover .project-image {
-    transform: scale(1.05);
-  }
-
-  .project-info {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .project-content:hover .project-info {
-    transform: translateY(-10px);
-  }
-
-  .project-header {
-    display: flex;
-    align-items: baseline;
-    gap: 1.5rem;
-  }
-
-  .project-number {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.5rem;
-    color: rgba(255, 255, 255, 0.5);
-    font-weight: 300;
-  }
-
-  .project-title {
-    font-size: 3rem;
-    font-weight: 500;
-    line-height: 1;
-    margin: 0;
-    text-transform: uppercase;
-  }
-
-  .project-description {
-    font-size: 1.25rem;
-    color: rgba(255, 255, 255, 0.7);
-    max-width: 80%;
-    margin: 0;
-  }
-
-  .project-meta {
-    margin-top: 0.5rem;
-  }
-
-  .project-type {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 100px;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: rgba(255, 255, 255, 0.8);
-  }
-
-  .project-link {
-    margin-top: 1rem;
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 0.875rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-decoration: none;
-    color: var(--primary-color);
-    display: inline-flex;
-    align-items: center;
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.4s ease, transform 0.4s ease;
-  }
-
-  .project-content:hover .project-link {
-    opacity: 1;
-    transform: translateY(0);
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .project-content {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 50vh;
+      gap: 2rem;
+    }
+    
+    .project-info {
+      justify-content: flex-start;
+    }
   }
 
   @media (max-width: 768px) {
@@ -186,34 +384,26 @@ const formattedIndex = String(index + 1).padStart(2, '0');
       height: auto;
       opacity: 1;
       transform: none;
-      margin-bottom: 4rem;
+      margin-bottom: 6rem;
     }
     
-    .project-visual {
-      aspect-ratio: 4/3;
-      height: auto;
+    .project-content {
+      grid-template-rows: auto 40vh;
     }
 
-    .project-content:hover .project-info {
+    .project-content:hover .project-visual {
       transform: none;
     }
 
-    .project-content:hover .project-image {
+    .project-content:hover .project-video,
+    .project-content:hover .project-image,
+    .project-content:hover .abstract-visual {
       transform: none;
     }
 
     .project-link {
       opacity: 1;
       transform: none;
-    }
-
-    .project-title {
-      font-size: 2rem;
-    }
-    
-    .project-description {
-      font-size: 1rem;
-      max-width: 100%;
     }
   }
 </style>

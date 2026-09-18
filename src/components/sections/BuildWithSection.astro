@@ -1,0 +1,405 @@
+---
+import { capabilities } from '../../data/capabilities';
+---
+
+<section id="build-with" class="build-with-section">
+  <div class="build-container">
+    
+    <div class="build-header gs-reveal-up">
+      <span class="section-label">HOW I BUILD</span>
+      <h2 class="section-title">I BUILD WITH</h2>
+      <p class="section-description">
+        Immersive experiences, software systems and products built from the intersection of technology and human interaction.
+      </p>
+    </div>
+
+    <div class="capabilities-list">
+      {capabilities.map((cap) => (
+        <div class={`capability-row gs-reveal-row ${cap.isPrimary ? 'is-primary' : ''}`} data-cursor="EXPLORE" tabindex="0">
+          
+          <div class="cap-main">
+            <span class="cap-number">{cap.number}</span>
+            <h3 class="cap-title">{cap.title}</h3>
+            <span class="cap-arrow desktop-only">&rarr;</span>
+            <span class="cap-icon mobile-only">+</span>
+          </div>
+          
+          <div class="cap-details">
+            <div class="cap-details-inner">
+              <ul class="skills-list">
+                {cap.skills.map(skill => <li>{skill}</li>)}
+              </ul>
+              {cap.isPrimary && (
+                <div class="xr-motif" aria-hidden="true">
+                  <div class="motif-grid"></div>
+                </div>
+              )}
+            </div>
+          </div>
+          
+        </div>
+      ))}
+    </div>
+
+  </div>
+</section>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  if (typeof window !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const section = document.getElementById('build-with');
+
+    if (section && !prefersReducedMotion) {
+      // Entrance Animation
+      gsap.set('.gs-reveal-up', { opacity: 0, y: 40 });
+      gsap.set('.gs-reveal-row', { opacity: 0, x: -20 });
+
+      ScrollTrigger.create({
+        trigger: section,
+        start: 'top 60%',
+        onEnter: () => {
+          const tl = gsap.timeline();
+          
+          tl.to('.gs-reveal-up', {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: 'power3.out'
+          });
+
+          tl.to('.gs-reveal-row', {
+            opacity: 1,
+            x: 0,
+            duration: 0.8,
+            stagger: 0.15,
+            ease: 'power3.out'
+          }, "-=0.5");
+        },
+        once: true
+      });
+    } else if (prefersReducedMotion) {
+      gsap.set('.gs-reveal-up', { opacity: 1, y: 0 });
+      gsap.set('.gs-reveal-row', { opacity: 1, x: 0 });
+    }
+
+    // Mobile Accordion & Keyboard Accessibility Logic
+    const rows = document.querySelectorAll('.capability-row');
+    
+    rows.forEach(row => {
+      // Click for mobile/touch
+      row.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+          const isExpanded = row.classList.contains('is-expanded');
+          
+          // Close all others
+          rows.forEach(r => {
+            r.classList.remove('is-expanded');
+            const icon = r.querySelector('.cap-icon');
+            if(icon) icon.textContent = '+';
+          });
+          
+          // Toggle current
+          if (!isExpanded) {
+            row.classList.add('is-expanded');
+            const icon = row.querySelector('.cap-icon');
+            if(icon) icon.textContent = '−';
+          }
+        }
+      });
+
+      // Keyboard support (Enter/Space to toggle on any device)
+      row.addEventListener('keydown', (e: any) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const isExpanded = row.classList.contains('is-expanded');
+          
+          rows.forEach(r => {
+            r.classList.remove('is-expanded');
+            const icon = r.querySelector('.cap-icon');
+            if(icon) icon.textContent = '+';
+          });
+          
+          if (!isExpanded) {
+            row.classList.add('is-expanded');
+            const icon = row.querySelector('.cap-icon');
+            if(icon) icon.textContent = '−';
+          }
+        }
+      });
+    });
+  }
+</script>
+
+<style>
+  .build-with-section {
+    padding: 12rem 5%;
+    background-color: var(--background-color, #0A0A0A);
+    color: var(--text-color, #F2F0EA);
+    position: relative;
+    /* Create visual closure before the next section */
+    margin-bottom: 4rem; 
+  }
+
+  .build-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8rem;
+  }
+
+  /* Header Typography */
+  .build-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 700px;
+  }
+
+  .section-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.875rem;
+    letter-spacing: 0.2em;
+    color: var(--color-text-muted, #858585);
+    text-transform: uppercase;
+  }
+
+  .section-title {
+    font-size: clamp(3rem, 6vw, 5rem);
+    font-weight: 500;
+    line-height: 1;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+
+  .section-description {
+    font-size: clamp(1.125rem, 2vw, 1.5rem);
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+  }
+
+  /* Capabilities List */
+  .capabilities-list {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .capability-row {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 2.5rem 0;
+    cursor: pointer;
+    position: relative;
+    outline: none;
+    transition: background-color 0.4s ease;
+  }
+  
+  .capability-row:focus-visible {
+    background-color: rgba(255, 255, 255, 0.03);
+  }
+
+  .cap-main {
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .cap-number {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.3);
+    transition: color 0.4s ease;
+  }
+
+  .cap-title {
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 400;
+    margin: 0;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s ease;
+    transform-origin: left center;
+  }
+
+  .cap-arrow {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.3);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s ease;
+  }
+
+  .cap-icon {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  /* Details (Accordion/Hover Container) */
+  .cap-details {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+  }
+
+  .cap-details-inner {
+    overflow: hidden;
+    position: relative;
+  }
+
+  .skills-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    padding-top: 2rem;
+    padding-left: calc(80px + 2rem); /* Align with title */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .skills-list li {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+  }
+
+  /* Primary XR specific styling */
+  .capability-row.is-primary {
+    /* Base styles for primary */
+  }
+
+  .xr-motif {
+    position: absolute;
+    right: 0;
+    top: 2rem;
+    width: 200px;
+    height: 100px;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+  }
+
+  .motif-grid {
+    width: 100%;
+    height: 100%;
+    background-size: 20px 20px;
+    background-image: 
+      linear-gradient(to right, rgba(199, 255, 74, 0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(199, 255, 74, 0.1) 1px, transparent 1px);
+    transform: perspective(500px) rotateX(60deg);
+  }
+
+  /* Desktop Hover & Keyboard Interactions */
+  @media (min-width: 769px) {
+    .mobile-only {
+      display: none;
+    }
+
+    .capability-row:hover .cap-details,
+    .capability-row:focus-visible .cap-details,
+    .capability-row.is-expanded .cap-details {
+      grid-template-rows: 1fr;
+      opacity: 1;
+    }
+
+    .capability-row:hover .cap-title,
+    .capability-row:focus-visible .cap-title,
+    .capability-row.is-expanded .cap-title {
+      transform: translateX(1rem);
+    }
+
+    .capability-row:hover .cap-arrow,
+    .capability-row:focus-visible .cap-arrow,
+    .capability-row.is-expanded .cap-arrow {
+      transform: translateX(0.5rem);
+      color: var(--text-color);
+    }
+
+    .capability-row:hover .cap-number,
+    .capability-row:focus-visible .cap-number,
+    .capability-row.is-expanded .cap-number {
+      color: var(--color-text-muted);
+    }
+
+    /* XR Specific Hover */
+    .capability-row.is-primary:hover .cap-title,
+    .capability-row.is-primary:focus-visible .cap-title,
+    .capability-row.is-primary.is-expanded .cap-title {
+      color: var(--color-accent);
+      transform: translateX(1rem) scale(1.02);
+    }
+
+    .capability-row.is-primary:hover,
+    .capability-row.is-primary:focus-visible,
+    .capability-row.is-primary.is-expanded {
+      background: linear-gradient(90deg, rgba(199, 255, 74, 0.02) 0%, transparent 100%);
+    }
+
+    .capability-row.is-primary:hover .xr-motif,
+    .capability-row.is-primary:focus-visible .xr-motif,
+    .capability-row.is-primary.is-expanded .xr-motif {
+      opacity: 1;
+    }
+  }
+
+  /* Mobile Tap Interactions */
+  @media (max-width: 768px) {
+    .desktop-only {
+      display: none;
+    }
+
+    .build-with-section {
+      padding: 8rem 5%;
+    }
+
+    .cap-main {
+      grid-template-columns: 40px 1fr auto;
+      gap: 1rem;
+    }
+
+    .cap-number {
+      font-size: 1rem;
+    }
+
+    .skills-list {
+      padding-left: 0;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .capability-row.is-expanded .cap-details {
+      grid-template-rows: 1fr;
+      opacity: 1;
+    }
+    
+    .capability-row.is-expanded .cap-title {
+      color: var(--color-accent);
+    }
+
+    .xr-motif {
+      display: none; /* Hide complex motif on mobile */
+    }
+  }
+
+  /* Reduced Motion Override */
+  @media (prefers-reduced-motion: reduce) {
+    .cap-title, .cap-arrow, .cap-details, .capability-row {
+      transition: none !important;
+    }
+    
+    .gs-reveal-up, .gs-reveal-row {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+</style>

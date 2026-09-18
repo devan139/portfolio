@@ -1,52 +1,263 @@
 ---
-import SectionHeading from '../SectionHeading.astro';
+import { socials } from '../../data/socials';
+
+const emailLink = socials.find(s => s.isEmail)?.url || 'mailto:devanarayananmp1@gmail.com';
 ---
-<section id="contact" class="section">
-  <div class="container">
-    <SectionHeading title="Let's Build" subtitle="Contact" />
+
+<section id="contact" class="contact-section" aria-labelledby="contact-heading">
+  <div class="contact-container">
     
-    <div class="contact-content">
-      <p class="contact-text">Ready to step into a new world? Let's discuss your next project.</p>
-      <a href="mailto:hello@example.com" class="contact-link">hello@example.com</a>
+    <div class="contact-header gs-reveal-contact">
+      <span class="section-label">CONTACT</span>
     </div>
+
+    <div class="contact-main">
+      <h2 id="contact-heading" class="contact-title gs-reveal-contact">
+        HAVE SOMETHING<br/>
+        WORTH BUILDING?
+      </h2>
+      
+      <p class="contact-description gs-reveal-contact">
+        XR experiences, software products, or something that doesn't exist yet.<br class="desktop-break"/>
+        I'm interested in building it.
+      </p>
+
+      <div class="cta-wrapper gs-reveal-contact">
+        <a href={emailLink} class="primary-cta" data-cursor="EMAIL">
+          <span class="cta-text">LET'S TALK</span>
+          <span class="cta-arrow">&rarr;</span>
+        </a>
+      </div>
+
+      <div class="secondary-links gs-reveal-contact">
+        <ul class="social-list">
+          {socials.map(s => (
+            <li>
+              <a 
+                href={s.url} 
+                target={s.isEmail ? undefined : "_blank"} 
+                rel={s.isEmail ? undefined : "noopener noreferrer"}
+                class="social-link"
+              >
+                {s.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+    
   </div>
 </section>
 
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  if (typeof window !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const section = document.getElementById('contact');
+
+    if (section && !prefersReducedMotion) {
+      gsap.set('.gs-reveal-contact', { opacity: 0, y: 40 });
+
+      ScrollTrigger.create({
+        trigger: section,
+        start: 'top 75%',
+        onEnter: () => {
+          gsap.to('.gs-reveal-contact', {
+            opacity: 1,
+            y: 0,
+            duration: 1.2,
+            stagger: 0.15,
+            ease: 'power3.out'
+          });
+        },
+        once: true
+      });
+    } else if (prefersReducedMotion) {
+      gsap.set('.gs-reveal-contact', { opacity: 1, y: 0 });
+    }
+  }
+</script>
+
 <style>
-  .section {
-    padding: 8rem 5%;
+  .contact-section {
+    /* Huge top padding for breathing room from About */
+    padding: 15rem 5% 8rem 5%;
+    background-color: var(--background-color, #0A0A0A);
+    color: var(--text-color, #F2F0EA);
   }
 
-  .container {
-    max-width: var(--container-width);
+  .contact-container {
+    max-width: var(--container-width, 1200px);
     margin: 0 auto;
-  }
-
-  .contact-content {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 4rem;
   }
 
-  .contact-text {
-    font-size: clamp(1.5rem, 3vw, 2.5rem);
-    color: var(--color-text-muted);
+  /* Header */
+  .section-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.875rem;
+    letter-spacing: 0.2em;
+    color: var(--color-text-muted, #858585);
+    text-transform: uppercase;
+  }
+
+  /* Main Content */
+  .contact-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    max-width: 900px;
+  }
+
+  .contact-title {
+    font-size: clamp(3rem, 7vw, 6.5rem);
+    font-weight: 500;
+    line-height: 1.05;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+
+  .contact-description {
+    font-size: clamp(1.125rem, 2vw, 1.5rem);
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
     max-width: 600px;
   }
 
-  .contact-link {
-    font-family: var(--font-heading);
-    font-size: clamp(2rem, 5vw, 4rem);
-    font-weight: 700;
-    color: var(--color-text-primary);
-    text-decoration: underline;
-    text-decoration-color: var(--color-accent);
-    text-underline-offset: 8px;
-    transition: color 0.3s ease;
-    align-self: flex-start;
+  /* Primary CTA */
+  .cta-wrapper {
+    margin-top: 2rem;
   }
 
-  .contact-link:hover {
-    color: var(--color-accent);
+  .primary-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.5rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    color: var(--text-color);
+    text-decoration: none;
+    position: relative;
+    padding-bottom: 0.5rem;
+    transition: color 0.4s ease;
+  }
+
+  /* Underline */
+  .primary-cta::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--text-color);
+    transform-origin: left;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.4s ease;
+  }
+
+  .cta-arrow {
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s ease;
+  }
+
+  /* CTA Hover State */
+  @media (hover: hover) and (pointer: fine) {
+    .primary-cta:hover,
+    .primary-cta:focus-visible {
+      color: var(--color-accent, #C7FF4A);
+      outline: none;
+    }
+
+    .primary-cta:hover::after,
+    .primary-cta:focus-visible::after {
+      transform: scaleX(1.05);
+      background-color: var(--color-accent, #C7FF4A);
+    }
+
+    .primary-cta:hover .cta-arrow,
+    .primary-cta:focus-visible .cta-arrow {
+      transform: translateX(1rem);
+    }
+  }
+
+  /* Secondary Links */
+  .secondary-links {
+    margin-top: 4rem;
+  }
+
+  .social-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.5rem;
+  }
+
+  .social-link {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    padding: 0.5rem 0;
+  }
+
+  .social-link:hover,
+  .social-link:focus-visible {
+    color: var(--color-accent, #C7FF4A);
+    outline: none;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .contact-section {
+      padding: 10rem 5% 6rem 5%;
+    }
+
+    .desktop-break {
+      display: none;
+    }
+
+    .contact-main {
+      gap: 2rem;
+    }
+
+    .cta-wrapper {
+      margin-top: 1rem;
+    }
+
+    .social-list {
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+  }
+
+  /* Reduced Motion Override */
+  @media (prefers-reduced-motion: reduce) {
+    .primary-cta::after, .cta-arrow, .primary-cta {
+      transition: none !important;
+    }
+    
+    .primary-cta:hover::after,
+    .primary-cta:focus-visible::after {
+      transform: none !important;
+    }
+    
+    .primary-cta:hover .cta-arrow,
+    .primary-cta:focus-visible .cta-arrow {
+      transform: none !important;
+    }
   }
 </style>

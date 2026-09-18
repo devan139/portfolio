@@ -1,41 +1,74 @@
 export interface Project {
   id: string;
+  slug: string;
+  number?: string;
   title: string;
-  type: string;
+  organization?: string;
+  category: string;
+  type?: string; // Legacy field
   status?: 'completed' | 'building';
   description: string;
-  image?: string;
-  video?: string;
+  role?: string;
+  technologies?: string[];
+  mediaType: 'image' | 'video' | 'abstract';
+  mediaSrc?: string;
+  image?: string; // Legacy field
+  video?: string; // Legacy field
+  poster?: string;
+  confidentiality?: string;
+  link?: string;
 }
 
 export const projects: Project[] = [
   {
     id: 'adnoc-vr',
-    title: 'ADNOC',
-    type: 'VR Training Simulation',
+    slug: 'adnoc',
+    number: '01',
+    title: 'WE WALK THE LINE',
+    organization: 'ADNOC',
+    category: 'INDUSTRIAL VR TRAINING',
     status: 'completed',
-    description: 'Immersive VR training simulation developed for ADNOC.',
+    description: 'A VR simulation created for industrial training.',
+    role: 'XR Engineer / Unity Developer',
+    technologies: ['Unity', 'C#', 'VR', '3D interaction', 'Simulation'],
+    mediaType: 'abstract',
+    confidentiality: 'Selected project details are presented at a high level due to project confidentiality.'
   },
   {
     id: 'bits-pilani',
-    title: 'BITS Pilani',
-    type: 'Training Simulation',
+    slug: 'bits-pilani',
+    number: '02',
+    title: 'TRAINING SIMULATION',
+    organization: 'BITS PILANI',
+    category: 'IMMERSIVE TRAINING',
     status: 'completed',
-    description: 'Interactive training simulation developed for BITS Pilani.',
+    description: 'An interactive VR training/simulation experience.',
+    role: 'XR Engineer / Unity Developer',
+    technologies: ['Unity', 'C#', 'VR', '3D interaction', 'Simulation'],
+    mediaType: 'abstract',
+    confidentiality: 'Selected project details are presented at a high level due to project confidentiality.'
   },
   {
     id: 'vr-molecular-lab',
-    title: 'VR Molecular Lab',
-    type: 'Virtual Reality',
+    slug: 'molecular-lab',
+    number: '03',
+    title: 'VR MOLECULAR LAB',
+    category: 'IMMERSIVE EDUCATION',
     status: 'completed',
-    description: 'A virtual reality molecular laboratory environment.',
-    // video: '/videos/vr-molecular-lab.mp4' // Placeholder for future video
+    description: 'An interactive virtual laboratory experience for exploring molecular concepts in VR.',
+    mediaType: 'video',
+    mediaSrc: '/videos/vr-molecular-lab.mp4',
+    poster: '/images/vr-molecular-lab-poster.jpg',
+    link: 'https://github.com/devan139/VR-Molecular-Lab'
   },
   {
     id: 'aerix',
+    slug: 'aerix',
     title: 'AERIX',
-    type: 'AI Fitness Product',
+    category: 'AI Fitness Product',
     status: 'building',
-    description: 'Currently building an AI-powered fitness product.',
+    description: 'AERIX is an AI-powered fitness product I\'m building to explore adaptive training, personalized workouts and better decision-making during training.',
+    mediaType: 'image',
+    link: 'https://github.com/devan139/Aerix'
   }
 ];

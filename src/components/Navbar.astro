@@ -1,9 +1,11 @@
 ---
+import { resolvePath } from '../utils/paths';
 ---
-<nav class="navbar">
+
+<nav class="navbar" id="navbar">
   <div class="navbar-inner">
-    <div class="logo">
-      <a href="/">DEVANARAYANAN</a>
+    <div class="logo" data-cursor="EXPLORE">
+      <a href={resolvePath('/')}>DEVANARAYANAN</a>
     </div>
     <ul class="nav-links">
       <li><a href="#work">Work</a></li>

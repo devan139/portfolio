@@ -51,8 +51,8 @@ export function initWorkScroll() {
         start: "left center+=15%", // Adjust triggers to center the active item nicely
         end: "right center-=15%",
         toggleClass: "is-active",
-        onEnter: () => updateIndex(i + 1),
-        onEnterBack: () => updateIndex(i + 1)
+        onEnter: () => updateIndex(i + 1, project.dataset.category || ''),
+        onEnterBack: () => updateIndex(i + 1, project.dataset.category || '')
       });
     });
 
@@ -71,16 +71,21 @@ export function initWorkScroll() {
         trigger: project,
         start: "top center",
         end: "bottom center",
-        onEnter: () => updateIndex(i + 1),
-        onEnterBack: () => updateIndex(i + 1)
+        onEnter: () => updateIndex(i + 1, project.dataset.category || ''),
+        onEnterBack: () => updateIndex(i + 1, project.dataset.category || '')
       });
     });
   });
 }
 
-function updateIndex(index: number) {
+function updateIndex(index: number, category: string) {
   const indexEl = document.querySelector('.current-index');
   if (indexEl) {
     indexEl.textContent = String(index).padStart(2, '0');
+  }
+  
+  const categoryEl = document.querySelector('.current-category');
+  if (categoryEl && category) {
+    categoryEl.textContent = category;
   }
 }

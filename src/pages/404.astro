@@ -1,0 +1,112 @@
+---
+import Layout from '../layouts/Layout.astro';
+import CustomCursor from '../components/CustomCursor.astro';
+import Navbar from '../components/Navbar.astro';
+import { resolvePath } from '../utils/paths';
+---
+
+<Layout title="404 — World Not Found">
+  <CustomCursor />
+  <Navbar />
+  
+  <main class="error-page">
+    <div class="error-container gs-reveal">
+      <span class="error-code">404</span>
+      <h1 class="error-title">THIS WORLD DOESN'T EXIST.</h1>
+      
+      <a href={resolvePath('/')} class="home-link" data-cursor="EXPLORE">
+        <span class="link-text">BACK HOME</span>
+        <span class="link-arrow">&rarr;</span>
+      </a>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import { gsap } from 'gsap';
+  
+  if (typeof window !== 'undefined') {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    
+    if (!prefersReducedMotion) {
+      gsap.fromTo('.gs-reveal', 
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 1, ease: 'power3.out', delay: 0.2 }
+      );
+    }
+  }
+</script>
+
+<style>
+  .error-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5%;
+    background-color: var(--color-bg, #0A0A0A);
+    color: var(--color-text-primary, #F2F0EA);
+  }
+
+  .error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 2rem;
+  }
+
+  .error-code {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.2em;
+    color: var(--color-accent, #C7FF4A);
+  }
+
+  .error-title {
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 500;
+    line-height: 1.1;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+
+  .home-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.25rem;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted, #858585);
+    text-decoration: none;
+    margin-top: 2rem;
+    transition: color 0.3s ease;
+  }
+
+  .link-arrow {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .home-link:hover,
+  .home-link:focus-visible {
+    color: var(--color-text-primary);
+    outline: none;
+  }
+
+  .home-link:hover .link-arrow,
+  .home-link:focus-visible .link-arrow {
+    transform: translateX(0.5rem);
+    color: var(--color-accent, #C7FF4A);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .home-link, .link-arrow {
+      transition: none !important;
+    }
+    .home-link:hover .link-arrow,
+    .home-link:focus-visible .link-arrow {
+      transform: none !important;
+    }
+  }
+</style>

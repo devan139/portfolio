@@ -1,91 +1,524 @@
 ---
-import SectionHeading from '../SectionHeading.astro';
 import { projects } from '../../data/projects';
 
 const aerixProject = projects.find(p => p.id === 'aerix');
 ---
-<section id="aerix" class="section">
-  <div class="container">
-    <SectionHeading title="AERIX" subtitle="Currently Building" />
+
+<section id="aerix" class="aerix-section">
+  <div class="aerix-container">
     
-    <div class="aerix-content">
-      <div class="aerix-visual">
-        <div class="placeholder-media">
-          <span>AI Fitness Product</span>
+    <div class="aerix-header gs-reveal">
+      <span class="currently-building">CURRENTLY BUILDING</span>
+      <h2 class="aerix-title">AERIX</h2>
+      <h3 class="aerix-headline">WHAT IF YOUR WORKOUT<br/>ADAPTED TO YOU?</h3>
+      <p class="aerix-description">{aerixProject?.description}</p>
+    </div>
+
+    <div class="aerix-visual-area">
+      
+      <!-- Conceptual UI -->
+      <div class="conceptual-ui gs-reveal parallax-element">
+        <div class="ui-header">
+          <span class="ui-brand">AERIX</span>
+          <span class="ui-subtitle">TODAY'S TRAINING</span>
+        </div>
+        <div class="ui-body">
+          <div class="ui-row">
+            <span class="ui-label">Workout:</span>
+            <span class="ui-value">Upper Body</span>
+          </div>
+          <div class="ui-row">
+            <span class="ui-label">Exercise:</span>
+            <span class="ui-value">Incline Dumbbell Press</span>
+          </div>
+          <div class="ui-row">
+            <span class="ui-label">Sets:</span>
+            <span class="ui-value">3 &times; 10</span>
+          </div>
+        </div>
+        <div class="ui-adaptation" id="ui-adaptation-box">
+          <div class="ai-badge">AI ADAPTATION</div>
+          <div class="adaptation-state" id="adaptation-state-1">
+            <p>Based on recent training feedback</p>
+          </div>
+          <div class="adaptation-state" id="adaptation-state-2" style="display: none; opacity: 0;">
+            <p class="feedback-detail">Recent training: 24kg &times; 8</p>
+            <p class="feedback-detail">Suggested today: 22kg &times; 10</p>
+            <p class="feedback-reason">Reason: Adjusting volume based on recent training feedback.</p>
+          </div>
+        </div>
+        <div class="ui-footer" id="start-workout-btn">
+          <span id="btn-text">START WORKOUT &rarr;</span>
+          <span class="concept-label">CONCEPT INTERACTION</span>
+        </div>
+      </div>
+
+      <!-- System Flow -->
+      <div class="system-flow gs-reveal">
+        <svg class="flow-svg" viewBox="0 0 100 400" preserveAspectRatio="xMidYMid meet">
+          <!-- Flow elements will be animated via GSAP -->
+          <g class="node" id="node-user" transform="translate(50, 40)">
+            <circle r="6" fill="var(--color-text-muted)" />
+            <text y="-15" text-anchor="middle" fill="var(--color-text-muted)" font-size="6" letter-spacing="0.1em">USER</text>
+          </g>
+          
+          <path class="flow-line line-1" d="M50 46 L50 94" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-dasharray="48" stroke-dashoffset="48" />
+          
+          <g class="node" id="node-profile" transform="translate(50, 100)">
+            <rect x="-20" y="-8" width="40" height="16" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" stroke-width="1" rx="2" />
+            <text y="2" text-anchor="middle" fill="var(--color-text-muted)" font-size="6" letter-spacing="0.1em">PROFILE</text>
+          </g>
+          
+          <path class="flow-line line-2" d="M50 108 L50 154" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-dasharray="46" stroke-dashoffset="46" />
+          
+          <g class="node" id="node-data" transform="translate(50, 160)">
+             <rect x="-35" y="-8" width="70" height="16" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" stroke-width="1" rx="2" />
+             <text y="2" text-anchor="middle" fill="var(--color-text-muted)" font-size="6" letter-spacing="0.1em">TRAINING DATA</text>
+          </g>
+
+          <path class="flow-line line-3" d="M50 168 L50 214" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-dasharray="46" stroke-dashoffset="46" />
+          
+          <g class="node" id="node-ai" transform="translate(50, 220)">
+            <rect x="-15" y="-10" width="30" height="20" fill="var(--color-accent)" rx="2" />
+            <text y="2" text-anchor="middle" fill="#000" font-size="7" font-weight="bold" letter-spacing="0.1em">AI</text>
+            <!-- Glowing effect -->
+            <rect class="ai-glow" x="-15" y="-10" width="30" height="20" fill="none" stroke="var(--color-accent)" stroke-width="2" rx="2" opacity="0" />
+          </g>
+
+          <path class="flow-line line-4" d="M50 230 L50 274" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-dasharray="44" stroke-dashoffset="44" />
+          
+          <g class="node" id="node-workout" transform="translate(50, 280)">
+             <rect x="-25" y="-8" width="50" height="16" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" stroke-width="1" rx="2" />
+             <text y="2" text-anchor="middle" fill="var(--color-text-muted)" font-size="6" letter-spacing="0.1em">WORKOUT</text>
+          </g>
+          
+          <path class="flow-line line-5" d="M50 288 L50 334" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-dasharray="46" stroke-dashoffset="46" />
+          
+          <g class="node" id="node-feedback" transform="translate(50, 340)">
+             <rect x="-25" y="-8" width="50" height="16" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" stroke-width="1" rx="2" />
+             <text y="2" text-anchor="middle" fill="var(--color-text-muted)" font-size="6" letter-spacing="0.1em">FEEDBACK</text>
+          </g>
+          
+          <!-- Feedback Loop Line -->
+          <path class="flow-line loop-line" id="loop-path" d="M25 340 L10 340 L10 220 L35 220" fill="none" stroke="var(--color-accent)" stroke-width="1" stroke-dasharray="4" opacity="0" />
+          
+        </svg>
+      </div>
+
+    </div>
+
+    <div class="aerix-footer gs-reveal">
+      <div class="metadata-grid">
+        <div class="meta-item">
+          <span class="meta-label">STATUS</span>
+          <span class="meta-value">IN DEVELOPMENT</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">ROLE</span>
+          <span class="meta-value">PRODUCT BUILDER / ENGINEER</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">FOCUS</span>
+          <span class="meta-value">AI &middot; FITNESS &middot; UX &middot; SYSTEMS</span>
         </div>
       </div>
       
-      <div class="aerix-info">
-        <h3>{aerixProject?.title}</h3>
-        <p class="description">{aerixProject?.description}</p>
-        <p class="status">In Development</p>
-      </div>
+      <a href="/aerix" class="cta-link">
+        EXPLORE AERIX &rarr;
+      </a>
     </div>
+
   </div>
 </section>
 
-<style>
-  .section {
-    padding: 8rem 5%;
-    background-color: #0F0F0F;
-  }
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-  .container {
-    max-width: var(--container-width);
-    margin: 0 auto;
-  }
+  if (typeof window !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
 
-  .aerix-content {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 4rem;
-  }
+    // Only run complex animations if the user hasn't requested reduced motion
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  @media (min-width: 1024px) {
-    .aerix-content {
-      grid-template-columns: 3fr 2fr;
-      align-items: center;
+    // Reset initial states
+    if (!prefersReducedMotion) {
+      gsap.set('.gs-reveal', { opacity: 0, y: 30 });
+      gsap.set('.node', { opacity: 0, scale: 0.8, transformOrigin: 'center center' });
+    }
+
+    const section = document.getElementById('aerix');
+
+    if (section && !prefersReducedMotion) {
+      // Main Reveal Sequence
+      ScrollTrigger.create({
+        trigger: section,
+        start: 'top 55%',
+        onEnter: () => {
+          const tl = gsap.timeline();
+
+          // Reveal text elements
+          tl.to('.aerix-header.gs-reveal', { opacity: 1, y: 0, duration: 1, ease: 'power3.out' });
+          tl.to('.conceptual-ui.gs-reveal', { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, "-=0.5");
+          tl.to('.system-flow.gs-reveal', { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, "-=0.8");
+          
+          // System Flow SVG animation
+          const nodes = gsap.utils.toArray('.node');
+          const lines = gsap.utils.toArray('.flow-line:not(.loop-line)') as HTMLElement[];
+          
+          nodes.forEach((node: any, index) => {
+            tl.to(node, { opacity: 1, scale: 1, duration: 0.4, ease: 'back.out(1.5)' }, `-=${index > 0 ? 0.2 : 0}`);
+            if (index < lines.length) {
+              tl.to(lines[index], { strokeDashoffset: 0, duration: 0.3, ease: 'none' });
+            }
+          });
+
+          // AI Node Activation
+          tl.to('.ai-glow', { opacity: 1, scale: 1.2, duration: 1, ease: 'power2.out', yoyo: true, repeat: -1 }, "-=1");
+          tl.to('#loop-path', { opacity: 0.5, duration: 0.5 }, "-=0.5");
+          
+          // Animate the dashed loop line continuously
+          gsap.to('#loop-path', { strokeDashoffset: -20, duration: 2, ease: 'none', repeat: -1 });
+
+          tl.to('.aerix-footer.gs-reveal', { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, "-=1");
+        },
+        once: true
+      });
+
+      // Subtle Parallax on Conceptual UI
+      const uiElement = document.querySelector('.parallax-element');
+      if (uiElement) {
+        section.addEventListener('mousemove', (e) => {
+          const rect = section.getBoundingClientRect();
+          const x = (e.clientX - rect.left - rect.width / 2) / rect.width;
+          const y = (e.clientY - rect.top - rect.height / 2) / rect.height;
+          
+          gsap.to(uiElement, {
+            x: x * 20,
+            y: y * 20,
+            rotationY: x * 5,
+            rotationX: -y * 5,
+            ease: 'power2.out',
+            duration: 1
+          });
+        });
+        
+        section.addEventListener('mouseleave', () => {
+          gsap.to(uiElement, { x: 0, y: 0, rotationY: 0, rotationX: 0, ease: 'power2.out', duration: 1 });
+        });
+      }
+    } else if (prefersReducedMotion) {
+       gsap.set('.gs-reveal', { opacity: 1, y: 0 });
+       gsap.set('.node', { opacity: 1, scale: 1 });
+       gsap.set('.flow-line', { strokeDashoffset: 0 });
+       gsap.set('#loop-path', { opacity: 0.5 });
+    }
+
+    // Micro-interaction logic (works regardless of reduced motion preference)
+    const btn = document.getElementById('start-workout-btn');
+    const btnText = document.getElementById('btn-text');
+    const state1 = document.getElementById('adaptation-state-1');
+    const state2 = document.getElementById('adaptation-state-2');
+    
+    if (btn && btnText && state1 && state2) {
+      let currentState = 0;
+      
+      btn.addEventListener('click', () => {
+        if (currentState === 0) {
+          currentState = 1;
+          btnText.textContent = 'ADAPTING SESSION...';
+          btn.style.pointerEvents = 'none';
+          btn.style.opacity = '0.7';
+          
+          setTimeout(() => {
+            gsap.to(state1, { opacity: 0, duration: 0.3, onComplete: () => {
+              state1.style.display = 'none';
+              state2.style.display = 'block';
+              gsap.to(state2, { opacity: 1, duration: 0.3 });
+              
+              btnText.textContent = '[ CONTINUE ]';
+              btn.style.pointerEvents = 'auto';
+              btn.style.opacity = '1';
+              currentState = 2;
+            }});
+          }, 600);
+        } else if (currentState === 2) {
+          btnText.textContent = 'SESSION READY';
+          btn.style.pointerEvents = 'none';
+        }
+      });
     }
   }
+</script>
 
-  .aerix-visual {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    background-color: #1A1A1A;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+<style>
+  .aerix-section {
+    padding: 25vh 5% 8rem 5%;
+    background-color: var(--background-color, #0A0A0A);
+    color: var(--text-color, #F2F0EA);
+    position: relative;
+    overflow: hidden;
   }
 
-  .placeholder-media {
-    width: 100%;
-    height: 100%;
+  .aerix-container {
+    max-width: var(--container-width);
+    margin: 0 auto;
     display: flex;
+    flex-direction: column;
+    gap: 6rem;
+  }
+
+  /* Header */
+  .aerix-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 800px;
+  }
+
+  .currently-building {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.875rem;
+    letter-spacing: 0.2em;
+    color: var(--color-accent, #C7FF4A);
+    text-transform: uppercase;
+  }
+
+  .aerix-title {
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 500;
+    line-height: 1;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+
+  .aerix-headline {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    font-weight: 400;
+    color: var(--color-text-muted, #858585);
+    margin-top: 1rem;
+    line-height: 1.2;
+  }
+
+  .aerix-description {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.7);
+    margin-top: 1rem;
+    max-width: 600px;
+  }
+
+  /* Visual Area */
+  .aerix-visual-area {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 4rem;
     align-items: center;
-    justify-content: center;
+    perspective: 1000px;
+  }
+
+  /* Conceptual UI */
+  .conceptual-ui {
+    background: #111;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    transform-style: preserve-3d;
+  }
+
+  .ui-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 1rem;
+  }
+
+  .ui-brand {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+
+  .ui-subtitle {
+    font-size: 0.75rem;
     color: var(--color-text-muted);
-    font-family: var(--font-heading);
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
 
-  .aerix-info h3 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
+  .ui-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
   }
 
-  .description {
+  .ui-row {
+    display: flex;
+    justify-content: space-between;
     font-size: 1.125rem;
-    color: var(--color-text-muted);
-    margin-bottom: 2rem;
   }
 
-  .status {
-    display: inline-block;
-    color: var(--color-accent);
-    border: 1px solid var(--color-accent);
-    padding: 0.5rem 1rem;
+  .ui-label {
+    color: var(--color-text-muted);
+  }
+
+  .ui-value {
+    font-weight: 500;
+  }
+
+  .ui-adaptation {
+    background: rgba(199, 255, 74, 0.05);
+    border: 1px solid rgba(199, 255, 74, 0.2);
+    padding: 1.5rem;
     border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .ai-badge {
+    font-size: 0.75rem;
+    color: var(--color-accent);
+    letter-spacing: 0.1em;
+    font-weight: 700;
+  }
+
+  .ui-adaptation p {
+    font-size: 0.875rem;
+    color: rgba(255,255,255,0.8);
+    margin: 0;
+  }
+
+  .feedback-detail {
+    margin-bottom: 0.25rem !important;
+  }
+  
+  .feedback-reason {
+    margin-top: 0.5rem !important;
+    font-style: italic;
+    color: rgba(255,255,255,0.5) !important;
+  }
+
+  .ui-footer {
+    text-align: center;
+    padding: 1rem;
+    background: #1a1a1a;
+    border-radius: 4px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.3s ease, opacity 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .ui-footer:hover {
+    background: #222;
+  }
+  
+  .concept-label {
+    font-size: 0.5rem;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+  }
+
+  /* System Flow SVG */
+  .system-flow {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .flow-svg {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+  }
+
+  /* Footer */
+  .aerix-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 3rem;
+  }
+
+  .metadata-grid {
+    display: flex;
+    gap: 4rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .meta-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.4);
+  }
+
+  .meta-value {
     font-size: 0.875rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+  }
+
+  .cta-link {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.25rem;
+    letter-spacing: 0.1em;
+    color: var(--color-text-primary);
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-text-primary);
+    padding-bottom: 0.5rem;
+    transition: color 0.3s ease, border-color 0.3s ease;
+  }
+
+  .cta-link:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .aerix-visual-area {
+      grid-template-columns: 1fr;
+      gap: 6rem;
+    }
+    
+    .system-flow {
+      height: 300px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .aerix-footer {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 3rem;
+    }
+    
+    .metadata-grid {
+      gap: 2rem;
+      flex-direction: column;
+    }
   }
 </style>
