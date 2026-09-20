@@ -1,0 +1,104 @@
+---
+import type { Project } from '../../data/projects';
+import { projects } from '../../data/projects';
+import { resolvePath } from '../../utils/paths';
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+
+// Find the next project details
+const nextProjectData = project.nextProject 
+  ? projects.find(p => p.slug === project.nextProject) 
+  : null;
+---
+
+{nextProjectData && (
+  <section class="project-next">
+    <a href={resolvePath(`/work/${nextProjectData.slug}`)} class="next-link-container" data-cursor="EXPLORE">
+      <span class="next-label gs-reveal-next">NEXT PROJECT</span>
+      <div class="next-title-wrapper gs-reveal-next">
+        <h2 class="next-title">{nextProjectData.title}</h2>
+        <span class="next-arrow">&rarr;</span>
+      </div>
+    </a>
+  </section>
+)}
+
+<style>
+  .project-next {
+    padding: 15vh 5%;
+    display: flex;
+    justify-content: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    background: #0d0d0d;
+  }
+
+  .next-link-container {
+    max-width: 1200px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    text-decoration: none;
+    color: var(--color-text-primary);
+    gap: 1.5rem;
+  }
+
+  .next-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
+    transition: color 0.4s ease;
+  }
+
+  .next-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .next-title {
+    font-size: clamp(3rem, 6vw, 6rem);
+    line-height: 1;
+    margin: 0;
+    text-transform: uppercase;
+    font-weight: 500;
+    transition: color 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .next-arrow {
+    font-size: clamp(3rem, 6vw, 6rem);
+    color: var(--color-text-muted);
+    transition: color 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Hover States */
+  .next-link-container:hover .next-label {
+    color: var(--color-text-primary);
+  }
+
+  .next-link-container:hover .next-title {
+    color: var(--color-accent);
+    transform: translateX(-10px);
+  }
+
+  .next-link-container:hover .next-arrow {
+    color: var(--color-accent);
+    transform: translateX(10px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .next-title, .next-arrow {
+      transition: none !important;
+    }
+    .next-link-container:hover .next-title,
+    .next-link-container:hover .next-arrow {
+      transform: none !important;
+    }
+  }
+</style>

@@ -1,0 +1,62 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import CustomCursor from '../../components/CustomCursor.astro';
+import ProjectHero from '../../components/project/ProjectHero.astro';
+import ProjectContext from '../../components/project/ProjectContext.astro';
+import ProjectRole from '../../components/project/ProjectRole.astro';
+import ProjectTakeaway from '../../components/project/ProjectTakeaway.astro';
+import ProjectNext from '../../components/project/ProjectNext.astro';
+import Footer from '../../components/sections/Footer.astro';
+import { projects } from '../../data/projects';
+import type { Project } from '../../data/projects';
+
+export async function getStaticPaths() {
+  // Only generate pages for completed projects (excluding AERIX)
+  const completedProjects = projects.filter(p => p.status === 'completed');
+  
+  return completedProjects.map((project) => {
+    return {
+      params: { slug: project.slug },
+      props: { project },
+    };
+  });
+}
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+---
+
+<Layout title={`${project.title} — DEVANARAYANAN`}>
+  <CustomCursor />
+  
+  <main class="project-page">
+    <ProjectHero project={project} />
+    <ProjectContext project={project} />
+    <ProjectRole project={project} />
+    <ProjectTakeaway project={project} />
+    <ProjectNext project={project} />
+  </main>
+  
+  <Footer />
+</Layout>
+
+<script>
+  import { initProjectScroll } from '../../lib/projectScroll';
+  
+  // Initialize on load
+  document.addEventListener('DOMContentLoaded', () => {
+    initProjectScroll();
+  });
+</script>
+
+<style>
+  .project-page {
+    min-height: 100vh;
+    background-color: var(--color-bg, #0A0A0A);
+    color: var(--color-text-primary, #F2F0EA);
+    overflow-x: hidden;
+  }
+</style>

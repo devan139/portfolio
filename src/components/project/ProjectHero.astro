@@ -1,0 +1,234 @@
+---
+import type { Project } from '../../data/projects';
+import { resolvePath } from '../../utils/paths';
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+const isAdnoc = project.id === 'adnoc-vr';
+const isBits = project.id === 'bits-pilani';
+---
+
+<section class="project-hero">
+  <div class="hero-top-info gs-hero-stagger">
+    <div class="project-meta">
+      <span class="project-number">{project.number}</span>
+      <span class="project-separator">/</span>
+      <span class="project-category">SELECTED WORK</span>
+    </div>
+    <a href={resolvePath('/#work')} class="back-link" data-cursor="EXPLORE">&larr; ALL WORK</a>
+  </div>
+
+  <div class="hero-title-container">
+    <h1 class="project-title gs-hero-stagger">{project.title}</h1>
+    {project.heroSubtitle && (
+      <h2 class="project-subtitle gs-hero-stagger">{project.heroSubtitle}</h2>
+    )}
+  </div>
+
+  <div class="project-media-wrapper gs-hero-stagger">
+    <div class="project-media-container" id="hero-media-container">
+      {project.mediaType === 'video' && project.mediaSrc ? (
+        <video 
+          class="hero-video" 
+          poster={project.poster ? resolvePath(project.poster) : ''}
+          preload="auto" 
+          controls 
+          muted 
+          loop 
+          playsinline>
+          <source src={resolvePath(project.mediaSrc)} type="video/mp4" />
+        </video>
+      ) : (
+        <div class={`abstract-hero-visual ${isAdnoc ? 'adnoc-visual' : isBits ? 'bits-visual' : ''}`}>
+           {isAdnoc && (
+             <div class="adnoc-grid">
+               <div class="scanner-line"></div>
+             </div>
+           )}
+           {isBits && (
+             <div class="bits-geometry">
+               <div class="shape shape-1"></div>
+               <div class="shape shape-2"></div>
+             </div>
+           )}
+        </div>
+      )}
+    </div>
+  </div>
+</section>
+
+<style>
+  .project-hero {
+    min-height: 100vh;
+    padding: 0 5%;
+    display: flex;
+    flex-direction: column;
+    padding-top: max(12vh, 100px);
+  }
+
+  .hero-top-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
+    margin-bottom: 8vh;
+  }
+
+  .project-meta {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .back-link {
+    color: var(--color-text-primary);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .back-link:hover {
+    color: var(--color-accent);
+  }
+
+  .hero-title-container {
+    margin-bottom: 6vh;
+  }
+
+  .project-title {
+    font-size: clamp(3rem, 8vw, 8rem);
+    line-height: 1;
+    margin: 0 0 1rem 0;
+    text-transform: uppercase;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+
+  .project-subtitle {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(1rem, 2vw, 1.5rem);
+    color: var(--color-accent);
+    letter-spacing: 0.1em;
+    font-weight: 400;
+    margin: 0;
+  }
+
+  .project-media-wrapper {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-bottom: 10vh;
+  }
+
+  .project-media-container {
+    width: 60%;
+    aspect-ratio: 16 / 9;
+    background: #111;
+    overflow: hidden;
+    transform-origin: center top;
+    will-change: transform, width;
+  }
+
+  .hero-video, .abstract-hero-visual {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Abstract visuals */
+  .abstract-hero-visual {
+    position: relative;
+    background: #0a0a0a;
+  }
+
+  .adnoc-visual .adnoc-grid {
+    position: absolute;
+    inset: 0;
+    background-size: 60px 60px;
+    background-image: 
+      linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .adnoc-visual .adnoc-grid::after {
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+  }
+
+  .scanner-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba(255,255,255,0.5);
+    box-shadow: 0 0 20px rgba(255,255,255,0.3);
+    animation: scan 4s ease-in-out infinite alternate;
+  }
+
+  @keyframes scan {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(100%); }
+  }
+
+  .bits-visual {
+    background: #111;
+  }
+  
+  .bits-geometry {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .bits-geometry .shape {
+    position: absolute;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .bits-geometry .shape-1 {
+    width: 60%;
+    height: 60%;
+    background: linear-gradient(45deg, rgba(255,255,255,0.02), transparent);
+    transform: rotate(15deg);
+  }
+
+  .bits-geometry .shape-2 {
+    width: 40%;
+    height: 80%;
+    backdrop-filter: blur(4px);
+    border-color: rgba(255,255,255,0.2);
+    transform: rotate(-10deg);
+  }
+
+  @media (max-width: 1024px) {
+    .project-media-container {
+      width: 80%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .project-media-container {
+      width: 100%;
+    }
+    
+    .hero-top-info {
+      margin-bottom: 4vh;
+    }
+  }
+</style>

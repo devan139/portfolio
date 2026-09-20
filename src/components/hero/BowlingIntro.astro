@@ -1,0 +1,133 @@
+---
+---
+<section class="bowling-intro-section" id="bowling-section">
+  <!-- Interactive WebGL Canvas Container -->
+  <div class="bowling-canvas-container" id="bowling-canvas-container">
+    <div class="loading-state" id="bowling-loading">LOADING EXPERIENCE</div>
+  </div>
+
+  <!-- Editorial Typography Overlay -->
+  <div class="hero-content" id="hero-typography">
+    <p class="hero-label">XR ENGINEER · PRODUCT BUILDER</p>
+    <h1 class="hero-title">
+      DEVANARAYANAN<br />
+      <span class="title-sub">I BUILD WORLDS PEOPLE CAN STEP INTO.</span>
+    </h1>
+  </div>
+
+  <!-- Strike Overlay -->
+  <div class="strike-overlay" id="strike-text">
+    <h2>STRIKE</h2>
+  </div>
+</section>
+
+<script>
+  import { BowlingScene } from '../../lib/bowlingScene';
+  import { resolvePath } from '../../utils/paths';
+
+  let scene: BowlingScene;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const ballUrl = resolvePath('/models/bowling-ball.glb');
+    const pinUrl = resolvePath('/models/bowling-pin.glb');
+    scene = new BowlingScene('bowling-canvas-container', ballUrl, pinUrl);
+  });
+
+  // Cleanup on page transitions (if using Astro View Transitions in the future)
+  document.addEventListener('astro:before-swap', () => {
+    if (scene) scene.destroy();
+  });
+</script>
+
+<style>
+  .bowling-intro-section {
+    min-height: 100vh;
+    width: 100%;
+    position: relative;
+    overflow: hidden; /* Keep canvas constrained horizontally */
+    background-color: var(--color-bg, #0A0A0A);
+  }
+
+  .bowling-canvas-container {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  /* Make the canvas block-level and cover */
+  .bowling-canvas-container :global(canvas) {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .loading-state {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.875rem;
+    letter-spacing: 0.2em;
+    color: var(--color-text-muted);
+    z-index: 2;
+  }
+
+  /* GSAP will animate this away, so it sits on top */
+  .hero-content {
+    position: absolute;
+    top: max(20vh, 120px);
+    left: 5%;
+    z-index: 10;
+    pointer-events: none; /* Let mouse interact with 3D canvas */
+  }
+
+  .hero-label {
+    color: var(--color-accent);
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+  }
+
+  .hero-title {
+    font-size: clamp(3rem, 7vw, 6.5rem);
+    letter-spacing: -0.02em;
+    margin: 0;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    line-height: 1.1;
+  }
+
+  .title-sub {
+    display: block;
+    font-size: clamp(1.25rem, 3vw, 2.5rem);
+    margin-top: 1rem;
+    color: var(--color-text-muted);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  .strike-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0; /* GSAP will animate */
+  }
+
+  .strike-overlay h2 {
+    font-size: clamp(4rem, 15vw, 15rem);
+    margin: 0;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+    text-transform: uppercase;
+  }
+</style>

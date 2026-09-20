@@ -17,6 +17,13 @@ export interface Project {
   poster?: string;
   confidentiality?: string;
   link?: string;
+  
+  // Detail Page Fields
+  heroSubtitle?: string;
+  contextHeadline?: string;
+  contextDescription?: string;
+  takeaway?: string;
+  nextProject?: string; // slug of the next project
 }
 
 export const projects: Project[] = [
@@ -32,7 +39,12 @@ export const projects: Project[] = [
     role: 'XR Engineer / Unity Developer',
     technologies: ['Unity', 'C#', 'VR', '3D interaction', 'Simulation'],
     mediaType: 'abstract',
-    confidentiality: 'Selected project details are presented at a high level due to project confidentiality.'
+    confidentiality: 'Selected project details are presented at a high level due to project confidentiality.',
+    heroSubtitle: 'INDUSTRIAL SIMULATION',
+    contextHeadline: 'A TRAINING ENVIRONMENT DESIGNED TO BE EXPERIENCED, NOT JUST OBSERVED.',
+    contextDescription: 'A VR simulation created for industrial training, placing users within critical scenarios that require spatial awareness, interaction, and precise decision-making.',
+    takeaway: 'Building immersive industrial applications requires balancing high-fidelity interaction with strict performance constraints.',
+    nextProject: 'bits-pilani'
   },
   {
     id: 'bits-pilani',
@@ -46,7 +58,12 @@ export const projects: Project[] = [
     role: 'XR Engineer / Unity Developer',
     technologies: ['Unity', 'C#', 'VR', '3D interaction', 'Simulation'],
     mediaType: 'abstract',
-    confidentiality: 'Selected project details are presented at a high level due to project confidentiality.'
+    confidentiality: 'Selected project details are presented at a high level due to project confidentiality.',
+    heroSubtitle: 'INTERACTIVE LEARNING',
+    contextHeadline: 'TRANSLATING COMPLEX PROCESSES INTO SPATIAL SYSTEMS.',
+    contextDescription: 'An interactive VR training and simulation experience designed to elevate educational immersion. By moving learning from 2D observation to 3D interaction, the project enhances retention and physical understanding.',
+    takeaway: 'Spatial learning provides users with muscle memory and intuitive understanding that traditional media cannot match.',
+    nextProject: 'molecular-lab'
   },
   {
     id: 'vr-molecular-lab',
@@ -59,7 +76,12 @@ export const projects: Project[] = [
     mediaType: 'video',
     mediaSrc: '/videos/vr-molecular-lab.mp4',
     poster: '/images/vr-molecular-lab-poster.jpg',
-    link: 'https://github.com/devan139/VR-Molecular-Lab'
+    link: 'https://github.com/devan139/VR-Molecular-Lab',
+    heroSubtitle: 'IMMERSIVE SCIENTIFIC TRAINING',
+    contextHeadline: 'MAKING THE INVISIBLE TANGIBLE.',
+    contextDescription: 'An interactive virtual laboratory experience for exploring molecular concepts in VR. It allows users to physically interact with chemical structures, breaking down abstract scientific theory into a hands-on spatial experience.',
+    takeaway: 'When users can grab, rotate, and scale atomic structures, the learning barrier disappears.',
+    nextProject: 'adnoc'
   },
   {
     id: 'aerix',

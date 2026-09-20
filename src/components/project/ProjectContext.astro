@@ -1,0 +1,73 @@
+---
+import type { Project } from '../../data/projects';
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+---
+
+<section class="project-context">
+  <div class="context-container">
+    {project.contextHeadline && (
+      <div class="context-heading-wrapper gs-reveal-context">
+        <h2 class="context-heading">{project.contextHeadline}</h2>
+      </div>
+    )}
+    
+    {project.contextDescription && (
+      <div class="context-description-wrapper gs-reveal-context">
+        <p class="context-description">{project.contextDescription}</p>
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .project-context {
+    padding: 15vh 5%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .context-container {
+    max-width: 1200px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+  }
+
+  .context-heading {
+    font-size: clamp(2rem, 5vw, 4.5rem);
+    line-height: 1.1;
+    font-weight: 500;
+    margin: 0;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    max-width: 20ch;
+  }
+
+  .context-description-wrapper {
+    align-self: flex-end;
+    max-width: 600px;
+  }
+
+  .context-description {
+    font-size: clamp(1.125rem, 2vw, 1.5rem);
+    line-height: 1.6;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .context-container {
+      gap: 3rem;
+    }
+    
+    .context-description-wrapper {
+      align-self: flex-start;
+    }
+  }
+</style>
