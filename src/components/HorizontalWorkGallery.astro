@@ -41,15 +41,15 @@ const { projects } = Astro.props;
 
   @media (max-width: 768px) {
     .horizontal-gallery-wrapper {
-      height: auto;
-      overflow: visible;
-      padding-top: 6rem;
+      height: 100vh;
+      overflow: hidden;
+      padding-top: 0;
     }
     
     .horizontal-track {
-      flex-direction: column;
-      padding: 0 5%;
-      gap: 0;
+      flex-direction: row;
+      padding: 0 5vw;
+      gap: 5vw;
     }
   }
 </style>

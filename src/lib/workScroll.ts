@@ -11,8 +11,9 @@ export function initWorkScroll() {
   
   const mm = gsap.matchMedia();
 
-  // Desktop horizontal scroll (only if no reduced motion preference)
-  mm.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () => {
+  // Unified logic for all screens (except reduced motion)
+  mm.add("(prefers-reduced-motion: no-preference)", (context) => {
+    const isMobile = window.innerWidth <= 768;
     const section = document.getElementById('work-section');
     const wrapper = document.getElementById('work-gallery-wrapper');
     const track = document.getElementById('work-gallery-track');
@@ -26,10 +27,10 @@ export function initWorkScroll() {
       return -(trackWidth - window.innerWidth);
     };
 
-    // The horizontal movement tween
+    // The master horizontal movement tween
     const tween = gsap.to(track, {
       x: getScrollAmount,
-      ease: "none" // Linear movement, scrubbing will provide the easing/smoothing
+      ease: "none"
     });
 
     // Pin the section and link horizontal tween to vertical scroll
@@ -43,34 +44,90 @@ export function initWorkScroll() {
       invalidateOnRefresh: true
     });
 
-    // Handle project active states for depth/scale effects using containerAnimation
+    // Handle project active states and spatial transforms using containerAnimation
     projects.forEach((project, i) => {
       ScrollTrigger.create({
         trigger: project,
         containerAnimation: tween,
-        start: "left center+=15%", // Adjust triggers to center the active item nicely
-        end: "right center-=15%",
-        toggleClass: "is-active",
-        onEnter: () => updateIndex(i + 1, project.dataset.category || ''),
-        onEnterBack: () => updateIndex(i + 1, project.dataset.category || '')
+        start: "left right", // Project's left edge hits viewport's right edge
+        end: "right left",   // Project's right edge hits viewport's left edge
+        onUpdate: (self) => {
+          // progress goes from 0 (just entering) to 1 (just left)
+          // Normalize so 0 is center, -1 is entering, 1 is leaving
+          const normalized = (self.progress - 0.5) * 2; 
+          const absNorm = Math.abs(normalized);
+          
+          // Spatial properties based on distance from center
+          const scaleMultiplier = isMobile ? 0.05 : 0.15;
+          const yMultiplier = isMobile ? 15 : 40;
+          const rotMultiplier = isMobile ? 0 : 5;
+          
+          const scale = 1 - (absNorm * scaleMultiplier);
+          const opacity = 1 - (absNorm * 0.5);
+          const y = absNorm * yMultiplier;
+          const rotate = normalized * rotMultiplier;
+
+          // Apply transforms to the project card
+          gsap.set(project, {
+            scale: scale,
+            opacity: opacity,
+            y: y,
+            rotationZ: rotate
+          });
+
+          // Subtle media parallax (move image opposite to scroll)
+          const media = project.querySelector('.project-media') || project.querySelector('img, video');
+          if (media) {
+            const parallaxDist = isMobile ? 25 : 50;
+            gsap.set(media, { x: normalized * parallaxDist });
+          }
+
+          // Active state toggle
+          if (absNorm < 0.25) {
+            if (!project.classList.contains('is-active')) {
+              project.classList.add('is-active');
+              updateIndex(i + 1, project.dataset.category || '');
+            }
+          } else {
+            project.classList.remove('is-active');
+          }
+        }
       });
     });
-
-    return () => {
-      // Cleanup is handled by GSAP matchMedia automatically
-    };
   });
   
-  // Mobile / Reduced Motion fallback behavior
-  mm.add("(max-width: 767px), (prefers-reduced-motion: reduce)", () => {
+  // Reduced Motion fallback behavior (opacity fade only)
+  mm.add("(prefers-reduced-motion: reduce)", () => {
+    const section = document.getElementById('work-section');
+    const track = document.getElementById('work-gallery-track');
     const projects = gsap.utils.toArray('.work-project') as HTMLElement[];
     
-    // For mobile, just do simple scroll triggers to update the index or fade in
+    if (!section || !track || projects.length === 0) return;
+
+    const getScrollAmount = () => -(track.scrollWidth - window.innerWidth);
+
+    const tween = gsap.to(track, {
+      x: getScrollAmount,
+      ease: "none"
+    });
+
+    ScrollTrigger.create({
+      trigger: section,
+      start: "top top",
+      end: () => `+=${Math.abs(getScrollAmount())}`, 
+      pin: true,
+      animation: tween,
+      scrub: 1,
+      invalidateOnRefresh: true
+    });
+
     projects.forEach((project, i) => {
       ScrollTrigger.create({
         trigger: project,
-        start: "top center",
-        end: "bottom center",
+        containerAnimation: tween,
+        start: "left center+=15%",
+        end: "right center-=15%",
+        toggleClass: "is-active",
         onEnter: () => updateIndex(i + 1, project.dataset.category || ''),
         onEnterBack: () => updateIndex(i + 1, project.dataset.category || '')
       });

@@ -20,6 +20,11 @@ export class BowlingScene {
   
   private mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
   private isMobile = false;
+  private cameraTarget: THREE.Vector3 = new THREE.Vector3(0, 0.5, -5);
+  
+  private strikeState: 'IDLE' | 'IMPACT' | 'STRIKE_HOLD' | 'RELEASED' = 'IDLE';
+  private strikeTl: gsap.core.Timeline | null = null;
+  private pinInitialTransforms: { position: THREE.Vector3, rotation: THREE.Euler }[] = [];
   
   private laneLength = 20;
 
@@ -216,6 +221,10 @@ export class BowlingScene {
         
         this.pinsGroup.add(group);
         this.pins.push(group);
+        this.pinInitialTransforms.push({
+          position: group.position.clone(),
+          rotation: group.rotation.clone()
+        });
       });
     });
   }
@@ -233,23 +242,18 @@ export class BowlingScene {
     const triggerSection = document.getElementById('bowling-section');
     if (!triggerSection) return;
 
-    // Use a GSAP Timeline mapped to the scroll progress of the pinned section
-    // Extended to 400% to provide plenty of scrub room for the strike transition
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        id: 'bowlingTrigger', // Added ID for debug lookup
-        trigger: triggerSection,
-        start: "top top",
-        end: "+=400%",
-        pin: true,
-        scrub: 1, // Smooth scrub
-        anticipatePin: 1
-      }
-    });
-
     if (this.prefersReducedMotion) {
       // Reduced motion: Just fade out text, show pins statically
-      tl.to('#hero-typography', { opacity: 0, y: -50, duration: 1 });
+      gsap.to('#hero-typography', {
+        scrollTrigger: {
+          trigger: triggerSection,
+          start: "top top",
+          end: "+=100%",
+          scrub: 1
+        },
+        opacity: 0,
+        y: -50
+      });
       this.pins.forEach(p => p.scale.set(1, 1, 1));
       return;
     }
@@ -257,133 +261,244 @@ export class BowlingScene {
     const IMPACT_Z = -this.laneLength;
     const START_Z = 0;
     const totalRotation = (IMPACT_Z - START_Z) / this.ballRadius;
+    
+    // Reset camera target
+    this.cameraTarget.set(0, 0.5, -5);
+
+    // Timeline for the approach (Scrubbed manually up to 0.90)
+    const approachTl = gsap.timeline({ paused: true });
 
     // 0.00 -> 0.15: Typography visible, then fades and moves away
-    tl.to('#hero-typography', { opacity: 0, y: -100, duration: 0.15 }, 0.05);
+    approachTl.to('#hero-typography', { opacity: 0, y: -100, duration: 0.15 }, 0.05);
     
     // 0.15 -> 0.88: Ball travels down lane
-    // We use a single continuous tween for smooth momentum
-    tl.to(this.ballGroup.position, {
-      z: IMPACT_Z + 3, // Ball approaches to within 3 units of the pins
+    approachTl.to(this.ballGroup.position, {
+      z: IMPACT_Z + 3,
       duration: 0.73,
       ease: 'power2.in'
     }, 0.15);
     
-    tl.to(this.ballGroup.rotation, {
-      x: totalRotation * (17 / 20), // Proportion of total rotation
+    approachTl.to(this.ballGroup.rotation, {
+      x: totalRotation * (17 / 20),
       duration: 0.73,
       ease: 'power2.in'
     }, 0.15);
 
     // Camera follows the ball cinematically from 0.15 to 0.88
-    tl.to(this.camera.position, {
-      z: IMPACT_Z + 11, // 8 units behind the ball at IMPACT_Z + 3
+    approachTl.to(this.camera.position, {
+      z: IMPACT_Z + 11,
       y: 1.8,
+      duration: 0.73,
+      ease: 'power2.in'
+    }, 0.15);
+
+    // Camera target transitions to look toward midpoint
+    approachTl.to(this.cameraTarget, {
+      z: IMPACT_Z + 1.5,
+      y: 0.5,
       duration: 0.73,
       ease: 'power2.in'
     }, 0.15);
 
     // 0.60 -> 0.70: Pins scale up to build anticipation
     this.pins.forEach((pin, index) => {
-      tl.to(pin.scale, {
+      approachTl.to(pin.scale, {
         x: 1, y: 1, z: 1,
         duration: 0.10,
         ease: 'back.out(1.5)'
-      }, 0.60 + (index * 0.005)); // tiny stagger
+      }, 0.60 + (index * 0.005));
     });
 
-    // 0.88 -> 0.94: Impact Anticipation
-    tl.to(this.ballGroup.position, {
+    // 0.88 -> 0.90: Impact Anticipation (end of scrubbed timeline)
+    approachTl.to(this.ballGroup.position, {
       z: IMPACT_Z - 0.5,
-      duration: 0.06,
+      duration: 0.02,
       ease: 'none'
     }, 0.88);
 
-    tl.to(this.ballGroup.rotation, {
+    approachTl.to(this.ballGroup.rotation, {
       x: totalRotation * (20.5 / 20),
-      duration: 0.06,
+      duration: 0.02,
       ease: 'none'
     }, 0.88);
 
-    // Camera tightens slightly but stays 8 units away
-    tl.to(this.camera.position, {
-      z: IMPACT_Z + 7.5, // 8 units behind the ball at IMPACT_Z - 0.5
+    // Camera tightens slightly
+    approachTl.to(this.camera.position, {
+      z: IMPACT_Z + 7.5,
       y: 1.6,
-      duration: 0.06,
+      duration: 0.02,
       ease: 'none'
     }, 0.88);
 
-    // 0.94 -> 0.97: CONTACT AND STRIKE DETERMINISTIC ANIMATION
-    // Ball continues through the pins
-    tl.to(this.ballGroup.position, {
-      z: IMPACT_Z - 5,
-      duration: 0.03,
+    // Camera target locks onto pin formation
+    approachTl.to(this.cameraTarget, {
+      z: IMPACT_Z,
+      y: 0.5,
+      duration: 0.02,
       ease: 'none'
-    }, 0.94);
-    
-    tl.to(this.ballGroup.rotation, {
-      x: totalRotation * (25 / 20),
-      duration: 0.03,
-      ease: 'none'
-    }, 0.94);
+    }, 0.88);
 
-    // Camera shakes and pushes through, but STOPS at z: -14 so pins are still visible
-    tl.to(this.camera.position, {
-      z: IMPACT_Z + 6, // 6 units away from origin, safe from clipping
-      y: 1.5,
-      duration: 0.03,
-      ease: 'power1.out'
-    }, 0.94);
-
-    // Deterministic Pin Tumble
-    this.pins.forEach((pin, i) => {
-      const angle = (i / 10) * Math.PI - (Math.PI / 2); // Spread -90 to +90
-      const force = 3 + (i % 3);
-      
-      tl.to(pin.position, {
-        x: pin.position.x + Math.sin(angle) * force,
-        z: pin.position.z - Math.cos(angle) * force - 4, // Fly backward
-        y: 1 + (i % 2), // Slight bounce
-        duration: 0.03,
-        ease: 'power1.out'
-      }, 0.94);
-
-      tl.to(pin.rotation, {
-        x: -(Math.PI / 2) - (i % 2),
-        y: angle * 2,
-        z: (i % 3),
-        duration: 0.03,
-        ease: 'power1.out'
-      }, 0.94);
+    // Create the master ScrollTrigger that manually scrubs approachTl
+    ScrollTrigger.create({
+      id: 'bowlingTrigger',
+      trigger: triggerSection,
+      start: "top top",
+      end: "+=300%",
+      pin: true,
+      anticipatePin: 1,
+      onUpdate: (self) => {
+        if (self.progress < 0.85) {
+          if (this.strikeState !== 'IDLE') {
+            this.resetStrikeHold();
+          }
+          // Smooth scrub effect by tweening the timeline's progress
+          gsap.to(approachTl, {
+            progress: self.progress / 0.90, // Still map to 0.90 for smooth approach
+            duration: 0.5,
+            ease: "power2.out",
+            overwrite: true
+          });
+        } else if (self.progress >= 0.90 && this.strikeState === 'IDLE') {
+          // Immediately stop any lingering approachTl scrub tweens to prevent fighting
+          gsap.killTweensOf(approachTl);
+          this.triggerStrikeHold();
+        } else if (self.progress >= 0.85 && self.progress < 0.90 && this.strikeState === 'IDLE') {
+           // We are between hysteresis bounds and haven't triggered strike yet. Keep scrubbing!
+          gsap.to(approachTl, {
+            progress: self.progress / 0.90,
+            duration: 0.5,
+            ease: "power2.out",
+            overwrite: true
+          });
+        }
+      }
     });
-
-    // 0.94 -> 0.97: STRIKE overlay appears
-    tl.to('#strike-text', {
-      opacity: 1,
-      scale: 1.05,
-      duration: 0.03,
-      ease: 'power2.out'
-    }, 0.94);
-
-    // 0.97 -> 1.00: STRIKE holds its state exactly as is.
-    // At EXACTLY 1.00, we fade out natively as we unpin into Selected Work
-    tl.to('#strike-text', {
-      opacity: 0,
-      y: -50,
-      duration: 0.01,
-      ease: 'none'
-    }, 0.99);
-
-    tl.to(this.renderer.domElement, {
-      opacity: 0,
-      duration: 0.01,
-      ease: 'none'
-    }, 0.99);
 
     // Refresh GSAP so subsequent sections like Selected Work correctly calculate their start points
     setTimeout(() => {
+      ScrollTrigger.sort();
       ScrollTrigger.refresh();
     }, 100);
+  }
+
+  private triggerStrikeHold() {
+    this.strikeState = 'IMPACT';
+    const container = document.getElementById('bowling-section');
+    const canvas = document.getElementById('bowling-canvas-container');
+    const text = document.getElementById('strike-text');
+    
+    // Add is-holding class to secure them on screen visually
+    if (canvas) canvas.classList.add('is-holding');
+    if (text) text.classList.add('is-holding');
+
+    const IMPACT_Z = -this.laneLength;
+    const START_Z = 0;
+    const totalRotation = (IMPACT_Z - START_Z) / this.ballRadius;
+
+    this.strikeTl = gsap.timeline();
+
+    // 1. IMPACT (0.00 -> 0.30s real-time)
+    this.strikeTl.to(this.ballGroup.position, {
+      z: IMPACT_Z - 5,
+      duration: 0.3,
+      ease: 'power1.out'
+    }, 0);
+    
+    this.strikeTl.to(this.ballGroup.rotation, {
+      x: totalRotation * (25 / 20),
+      duration: 0.3,
+      ease: 'power1.out'
+    }, 0);
+
+    this.strikeTl.to(this.camera.position, {
+      z: IMPACT_Z + 6,
+      y: 1.5,
+      duration: 0.3,
+      ease: 'power1.out'
+    }, 0);
+
+    this.strikeTl.to(this.cameraTarget, {
+      z: IMPACT_Z - 5,
+      y: 0,
+      duration: 0.3,
+      ease: 'power1.out'
+    }, 0);
+
+    this.pins.forEach((pin, i) => {
+      const angle = (i / 10) * Math.PI - (Math.PI / 2);
+      const force = 3 + (i % 3);
+      
+      this.strikeTl!.to(pin.position, {
+        x: this.pinInitialTransforms[i].position.x + Math.sin(angle) * force,
+        z: this.pinInitialTransforms[i].position.z - Math.cos(angle) * force - 4,
+        y: 1 + (i % 2),
+        duration: 0.3,
+        ease: 'power1.out'
+      }, 0);
+
+      this.strikeTl!.to(pin.rotation, {
+        x: -(Math.PI / 2) - (i % 2),
+        y: angle * 2,
+        z: (i % 3),
+        duration: 0.3,
+        ease: 'power1.out'
+      }, 0);
+    });
+
+    this.strikeTl.to(text, {
+      opacity: 1,
+      scale: 1.05,
+      duration: 0.3,
+      ease: 'power2.out'
+    }, 0);
+
+    // 2. HOLD (1000ms real-time delay)
+    this.strikeTl.to({}, { duration: 1.0, onStart: () => { this.strikeState = 'STRIKE_HOLD'; } });
+
+    // 3. RELEASE
+    this.strikeTl.to([canvas, text], {
+      opacity: 0,
+      duration: 0.5,
+      ease: 'power2.inOut',
+      onComplete: () => {
+        this.strikeState = 'RELEASED';
+        if (canvas) canvas.classList.remove('is-holding');
+        if (text) text.classList.remove('is-holding');
+      }
+    });
+  }
+
+  private resetStrikeHold() {
+    this.strikeState = 'IDLE';
+    if (this.strikeTl) {
+      this.strikeTl.kill();
+      this.strikeTl = null;
+    }
+    
+    const canvas = document.getElementById('bowling-canvas-container');
+    const text = document.getElementById('strike-text');
+    if (canvas) {
+      canvas.classList.remove('is-holding');
+      gsap.set(canvas, { opacity: 1 });
+    }
+    if (text) {
+      text.classList.remove('is-holding');
+      gsap.set(text, { opacity: 0, scale: 1 });
+    }
+
+    // Reset pins
+    this.pins.forEach((pin, i) => {
+      gsap.set(pin.position, {
+        x: this.pinInitialTransforms[i].position.x,
+        y: this.pinInitialTransforms[i].position.y,
+        z: this.pinInitialTransforms[i].position.z
+      });
+      gsap.set(pin.rotation, {
+        x: this.pinInitialTransforms[i].rotation.x,
+        y: this.pinInitialTransforms[i].rotation.y,
+        z: this.pinInitialTransforms[i].rotation.z
+      });
+    });
   }
 
   private bindEvents() {
@@ -434,12 +549,11 @@ export class BowlingScene {
 
         // Base X/Y positions updated by GSAP timeline, we inject offset
         this.camera.position.x = this.mouse.x * 0.5;
-        // Don't modify camera.position.y/z heavily as it conflicts with GSAP
-        // Just lookAt
+        // The camera target is animated by GSAP. Apply parallax to lookAt slightly.
         this.camera.lookAt(
-          this.ballGroup.position.x, 
-          this.ballGroup.position.y, 
-          this.ballGroup.position.z - 5
+          this.cameraTarget.x,
+          this.cameraTarget.y + this.mouse.y * 0.2, // Subtle vertical parallax
+          this.cameraTarget.z
         );
       }
     }
