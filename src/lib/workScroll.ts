@@ -85,8 +85,8 @@ export function initWorkScroll() {
           const absNorm = Math.abs(normalized);
           
           // Spatial properties based on distance from center
-          const scaleMultiplier = isMobile ? 0.05 : 0.15;
-          const yMultiplier = isMobile ? 15 : 40;
+          const scaleMultiplier = isMobile ? 0.04 : 0.15;
+          const yMultiplier = isMobile ? 6 : 40;
           const rotMultiplier = isMobile ? 0 : 5;
           
           const scale = 1 - (absNorm * scaleMultiplier);
@@ -102,10 +102,10 @@ export function initWorkScroll() {
             rotationZ: rotate
           });
 
-          // Subtle media parallax (move image opposite to scroll)
+          // Subtle media parallax (move image opposite to scroll on desktop only)
           const media = project.querySelector('.project-media') || project.querySelector('img, video');
           if (media) {
-            const parallaxDist = isMobile ? 25 : 50;
+            const parallaxDist = isMobile ? 0 : 35;
             gsap.set(media, { x: normalized * parallaxDist });
           }
 

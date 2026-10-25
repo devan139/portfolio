@@ -163,16 +163,29 @@ const hasImageFile = hasProjectImage(project.image);
   .project-media-container {
     width: 60%;
     aspect-ratio: 16 / 9;
-    background: #111;
+    background: #06090e;
     overflow: hidden;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transform-origin: center top;
     will-change: transform, width;
   }
 
-  .hero-video, .abstract-hero-visual, .hero-image {
+  .hero-video, .abstract-hero-visual {
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  .hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    background-color: #06090e;
   }
 
   .hero-dev-tag {
@@ -410,12 +423,25 @@ const hasImageFile = hasProjectImage(project.image);
   }
 
   @media (max-width: 768px) {
+    .project-hero {
+      padding-top: max(10vh, 80px);
+    }
+
     .project-media-container {
       width: 100%;
+      aspect-ratio: 16 / 10;
     }
     
     .hero-top-info {
+      margin-bottom: 3vh;
+    }
+
+    .hero-title-container {
       margin-bottom: 4vh;
+    }
+
+    .project-title {
+      font-size: clamp(2rem, 9vw, 3.5rem);
     }
   }
 </style>
