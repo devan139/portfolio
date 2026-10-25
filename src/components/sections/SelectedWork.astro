@@ -1,15 +1,13 @@
 ---
 import WorkEnvironment from '../WorkEnvironment.astro';
 import HorizontalWorkGallery from '../HorizontalWorkGallery.astro';
-import { projects } from '../../data/projects';
-
-// Filter for completed projects (ADNOC, BITS Pilani, VR Molecular Lab). AERIX is excluded.
-const completedProjects = projects.filter(p => p.id !== 'aerix' && p.status === 'completed');
+import { featuredProjects } from '../../data/projects';
 ---
 
+<div id="work"></div>
 <section id="work-section" class="selected-work-section">
-  <WorkEnvironment totalProjects={completedProjects.length} />
-  <HorizontalWorkGallery projects={completedProjects} />
+  <WorkEnvironment totalProjects={featuredProjects.length} />
+  <HorizontalWorkGallery projects={featuredProjects} />
 </section>
 
 <script>

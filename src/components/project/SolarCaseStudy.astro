@@ -1,0 +1,390 @@
+---
+import type { CaseStudyData } from '../../data/projects';
+import { resolvePath } from '../../utils/paths';
+import { hasProjectImage } from '../../utils/assets';
+
+interface Props {
+  caseStudy: CaseStudyData;
+}
+
+const { caseStudy } = Astro.props;
+const checkImage = hasProjectImage;
+
+const sections = [
+  { key: '01', id: 'overview', data: caseStudy.overview },
+  { key: '02', id: 'challenge', data: caseStudy.challenge },
+  { key: '03', id: 'architecture', data: caseStudy.architecture },
+  { key: '04', id: 'digital-twin', data: caseStudy.digitalTwin },
+  { key: '05', id: 'monitoring-alerts', data: caseStudy.monitoringAlerts },
+  { key: '06', id: 'engineering-decisions', data: caseStudy.engineeringDecisions },
+  { key: '07', id: 'limitations-next-steps', data: caseStudy.limitationsNextSteps },
+];
+---
+
+<div class="solar-case-study">
+  <div class="case-study-nav-wrapper">
+    <div class="case-study-nav">
+      <span class="nav-title">CASE STUDY NAVIGATION</span>
+      <ul class="nav-links">
+        {sections.map(s => (
+          <li>
+            <a href={`#${s.id}`} class="nav-anchor">
+              <span class="anchor-num">{s.key}</span>
+              <span class="anchor-label">{s.data.title}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+
+  <div class="case-study-body">
+    {sections.map(s => (
+      <section id={s.id} class="case-section gs-reveal-study">
+        <div class="section-meta">
+          <span class="section-num">{s.key} &mdash; SECTION</span>
+          <h2 class="section-heading">{s.data.title}</h2>
+          {s.data.subtitle && <p class="section-subheading">{s.data.subtitle}</p>}
+        </div>
+
+        <div class="section-text">
+          {s.data.content.map(paragraph => (
+            <p class="study-para">{paragraph}</p>
+          ))}
+        </div>
+
+        {s.data.callout && (
+          <div class={`callout-box callout-${s.data.callout.type || 'spec'}`}>
+            <div class="callout-header">
+              <span class="callout-tag">{s.data.callout.type?.toUpperCase() || 'SPECIFICATION'}</span>
+              <h3 class="callout-title">{s.data.callout.title}</h3>
+            </div>
+            <ul class="callout-list">
+              {s.data.callout.details.map(item => (
+                <li class="callout-item">{item}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {s.data.screenshot && (
+          <figure class="study-figure">
+            {checkImage(s.data.screenshot.filename) ? (
+              <img 
+                src={resolvePath(s.data.screenshot.filename)} 
+                alt={s.data.screenshot.alt} 
+                class="study-screenshot"
+                loading="lazy"
+              />
+            ) : (
+              <div class="study-screenshot-placeholder">
+                <div class="placeholder-content">
+                  <span class="placeholder-badge">DEVELOPMENT PLACEHOLDER</span>
+                  <p class="placeholder-path">{s.data.screenshot.filename}</p>
+                  <p class="placeholder-hint">Place image file at expected location in public directory to display here.</p>
+                </div>
+              </div>
+            )}
+            <figcaption class="study-caption">{s.data.screenshot.caption}</figcaption>
+          </figure>
+        )}
+      </section>
+    ))}
+  </div>
+</div>
+
+<style>
+  .solar-case-study {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 8vh 5% 12vh 5%;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 6rem;
+    position: relative;
+  }
+
+  /* Sticky Navigation */
+  .case-study-nav-wrapper {
+    position: relative;
+  }
+
+  .case-study-nav {
+    position: sticky;
+    top: 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-right: 1.5rem;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .nav-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    color: var(--color-accent, #C7FF4A);
+    text-transform: uppercase;
+  }
+
+  .nav-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .nav-anchor {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    transition: color 0.3s ease, transform 0.3s ease;
+  }
+
+  .nav-anchor:hover,
+  .nav-anchor:focus-visible {
+    color: var(--color-accent, #C7FF4A);
+    transform: translateX(4px);
+    outline: none;
+  }
+
+  .anchor-num {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  /* Body & Sections */
+  .case-study-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8rem;
+  }
+
+  .case-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    scroll-margin-top: 120px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding-bottom: 6rem;
+  }
+
+  .case-section:last-child {
+    border-bottom: none;
+  }
+
+  .section-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .section-num {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    color: var(--color-accent, #C7FF4A);
+    text-transform: uppercase;
+  }
+
+  .section-heading {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.25rem);
+    font-weight: 500;
+    margin: 0;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    color: var(--color-text-primary, #F2F0EA);
+  }
+
+  .section-subheading {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.125rem;
+    color: var(--color-text-muted, #858585);
+    margin: 0;
+  }
+
+  .section-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 780px;
+  }
+
+  .study-para {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+  }
+
+  /* Callout box */
+  .callout-box {
+    background: #0d0f12;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 3px solid var(--color-accent, #C7FF4A);
+    padding: 2rem;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-width: 820px;
+  }
+
+  .callout-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .callout-tag {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+    color: var(--color-accent, #C7FF4A);
+  }
+
+  .callout-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--color-text-primary, #F2F0EA);
+    margin: 0;
+  }
+
+  .callout-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .callout-item {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.75);
+    position: relative;
+    padding-left: 1.5rem;
+  }
+
+  .callout-item::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--color-accent, #C7FF4A);
+  }
+
+  /* Screenshot figures */
+  .study-figure {
+    margin: 1.5rem 0 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 860px;
+  }
+
+  .study-screenshot {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background: #111;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+
+  .study-screenshot-placeholder {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #0e1115;
+    border: 1px dashed rgba(255, 255, 255, 0.18);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  .placeholder-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+  }
+
+  .placeholder-badge {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.6875rem;
+    letter-spacing: 0.15em;
+    padding: 0.25rem 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: var(--color-text-muted, #858585);
+    border-radius: 2px;
+  }
+
+  .placeholder-path {
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: var(--color-accent, #C7FF4A);
+    margin: 0;
+  }
+
+  .placeholder-hint {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.4);
+    margin: 0;
+  }
+
+  .study-caption {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .solar-case-study {
+      grid-template-columns: 1fr;
+      gap: 4rem;
+    }
+
+    .case-study-nav {
+      position: static;
+      border-right: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 2rem;
+      padding-right: 0;
+    }
+
+    .nav-links {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 1rem 1.5rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .case-section {
+      gap: 2rem;
+      padding-bottom: 4rem;
+    }
+
+    .callout-box {
+      padding: 1.5rem;
+    }
+  }
+</style>

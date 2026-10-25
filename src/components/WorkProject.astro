@@ -2,6 +2,7 @@
 // src/components/WorkProject.astro
 import type { Project } from '../data/projects';
 import { resolvePath } from '../utils/paths';
+import { hasProjectImage } from '../utils/assets';
 
 interface Props {
   project: Project;
@@ -10,16 +11,22 @@ interface Props {
 
 const { project, index } = Astro.props;
 const isAdnoc = project.id === 'adnoc-vr';
+const isSolar = project.id === 'solar-digital-twin';
+const isAR = project.id === 'ar-applications';
 const isBits = project.id === 'bits-pilani';
+const isHero = Boolean(project.isHero);
+
+const hasImageFile = hasProjectImage(project.image);
 ---
 
-<div class="work-project" data-index={index + 1} data-category={project.category}>
+<div class={`work-project ${isHero ? 'is-hero-project' : ''}`} data-index={index + 1} data-category={project.category}>
   <div class="project-content" data-cursor="VIEW">
     
     <div class="project-info">
       <div class="project-header">
         <span class="project-number">{project.number}</span>
         {project.organization && <span class="project-org">{project.organization}</span>}
+        {isHero && <span class="hero-badge">HERO PROJECT</span>}
       </div>
       
       <h3 class="project-title">{project.title}</h3>
@@ -66,11 +73,40 @@ const isBits = project.id === 'bits-pilani';
             <source src={resolvePath(project.mediaSrc)} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
-        ) : project.mediaType === 'abstract' ? (
-          <div class={`abstract-visual ${isAdnoc ? 'adnoc-visual' : isBits ? 'bits-visual' : ''}`}>
+        ) : hasImageFile && project.image ? (
+          <img src={resolvePath(project.image)} alt={project.title} class="project-image" loading="lazy" />
+        ) : (
+          <div class={`abstract-visual ${isAdnoc ? 'adnoc-visual' : isSolar ? 'solar-visual' : isAR ? 'ar-visual' : isBits ? 'bits-visual' : ''}`}>
              {isAdnoc && (
                <div class="adnoc-grid">
                  <div class="scanner-line"></div>
+                 {!hasImageFile && <span class="asset-dev-label">ADNOC VR TRAINING &middot; ASSET AWAITING COVER IMAGE</span>}
+               </div>
+             )}
+             {isSolar && (
+               <div class="solar-grid-scene">
+                 <div class="solar-topology">
+                   <div class="solar-row row-1"></div>
+                   <div class="solar-row row-2"></div>
+                   <div class="solar-row row-3"></div>
+                   <div class="solar-array-highlight">
+                     <span class="pulse-marker"></span>
+                     <span class="array-id">ARRAY_04 &middot; 3D MODEL READY</span>
+                   </div>
+                 </div>
+                 {!hasImageFile && <span class="asset-dev-label">SOLAR PLANT DIGITAL TWIN &middot; COVER SCREENSHOT PENDING</span>}
+               </div>
+             )}
+             {isAR && (
+               <div class="ar-reticle-scene">
+                 <div class="ar-bounding-box">
+                   <div class="corner c-tl"></div>
+                   <div class="corner c-tr"></div>
+                   <div class="corner c-bl"></div>
+                   <div class="corner c-br"></div>
+                   <div class="ar-crosshair"></div>
+                   <span class="ar-status-text">SPATIAL TARGET RECOGNIZED</span>
+                 </div>
                </div>
              )}
              {isBits && (
@@ -79,12 +115,6 @@ const isBits = project.id === 'bits-pilani';
                  <div class="shape shape-2"></div>
                </div>
              )}
-          </div>
-        ) : project.image ? (
-          <img src={resolvePath(project.image)} alt={project.title} class="project-image" loading="lazy" />
-        ) : (
-          <div class="placeholder-visual">
-            <span class="placeholder-text">VISUAL ASSET</span>
           </div>
         )}
       </div>
@@ -136,6 +166,24 @@ const isBits = project.id === 'bits-pilani';
     align-items: baseline;
     gap: 1rem;
     font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .hero-badge {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.6875rem;
+    letter-spacing: 0.15em;
+    padding: 0.2rem 0.6rem;
+    background: rgba(199, 255, 74, 0.1);
+    color: var(--color-accent);
+    border: 1px solid rgba(199, 255, 74, 0.3);
+    border-radius: 2px;
+    font-weight: 600;
+    margin-left: auto;
+  }
+
+  .work-project.is-hero-project.is-active .project-visual {
+    box-shadow: 0 0 60px rgba(199, 255, 74, 0.08);
+    border: 1px solid rgba(199, 255, 74, 0.25);
   }
 
   .project-number {
@@ -349,6 +397,178 @@ const isBits = project.id === 'bits-pilani';
     transform: rotate(-10deg);
   }
 
+  /* Solar Plant Digital Twin Visual */
+  .solar-visual {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #0d0f12;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .solar-grid-scene {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-image: 
+      radial-gradient(ellipse at 50% 50%, rgba(199, 255, 74, 0.06), transparent 70%),
+      linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 100% 100%, 30px 30px, 30px 30px;
+  }
+
+  .solar-topology {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    width: 70%;
+    max-width: 380px;
+    transform: perspective(600px) rotateX(25deg);
+    transform-style: preserve-3d;
+  }
+
+  .solar-row {
+    height: 38px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.03), rgba(199, 255, 74, 0.05), rgba(255, 255, 255, 0.03));
+    border-radius: 2px;
+  }
+
+  .solar-array-highlight {
+    margin-top: 0.5rem;
+    padding: 0.6rem 1rem;
+    background: rgba(10, 10, 10, 0.85);
+    border: 1px solid var(--color-accent);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: 3px;
+    box-shadow: 0 0 20px rgba(199, 255, 74, 0.15);
+  }
+
+  .pulse-marker {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 10px var(--color-accent);
+    animation: pulse-dot 1.8s infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 0.4; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.3); }
+  }
+
+  .array-id {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--color-text-primary);
+  }
+
+  /* AR Visual */
+  .ar-visual {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #080808;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ar-reticle-scene {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ar-bounding-box {
+    width: 60%;
+    height: 60%;
+    position: relative;
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .corner {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--color-accent);
+  }
+  .c-tl { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+  .c-tr { top: -2px; right: -2px; border-left: none; border-bottom: none; }
+  .c-bl { bottom: -2px; left: -2px; border-right: none; border-top: none; }
+  .c-br { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+
+  .ar-crosshair {
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(199, 255, 74, 0.6);
+    border-radius: 50%;
+    position: relative;
+  }
+
+  .ar-crosshair::before,
+  .ar-crosshair::after {
+    content: '';
+    position: absolute;
+    background: var(--color-accent);
+  }
+
+  .ar-crosshair::before {
+    top: 50%;
+    left: -6px;
+    right: -6px;
+    height: 1px;
+    transform: translateY(-50%);
+  }
+
+  .ar-crosshair::after {
+    left: 50%;
+    top: -6px;
+    bottom: -6px;
+    width: 1px;
+    transform: translateX(-50%);
+  }
+
+  .ar-status-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.6875rem;
+    letter-spacing: 0.15em;
+    color: var(--color-accent);
+    text-transform: uppercase;
+  }
+
+  .asset-dev-label {
+    position: absolute;
+    bottom: 1.5rem;
+    padding: 0.35rem 0.75rem;
+    background: rgba(0, 0, 0, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.6);
+    border-radius: 2px;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+
   .placeholder-visual {
     width: 100%;
     height: 100%;
@@ -380,15 +600,31 @@ const isBits = project.id === 'bits-pilani';
 
   @media (max-width: 768px) {
     .work-project {
-      width: 100%;
-      height: auto;
-      opacity: 1;
-      transform: none;
-      margin-bottom: 6rem;
+      width: 90vw;
+      height: 85vh;
+      opacity: 0.5; /* Let GSAP active state bring it to 1 */
+      margin-bottom: 0;
+      transform: scale(0.95);
     }
     
     .project-content {
+      grid-template-columns: 1fr;
       grid-template-rows: auto 40vh;
+      gap: 1.5rem;
+    }
+
+    .project-info {
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .project-title {
+      font-size: clamp(2rem, 8vw, 2.5rem);
+    }
+
+    .project-description {
+      font-size: 1rem;
+      line-height: 1.4;
     }
 
     .project-content:hover .project-visual {
@@ -402,8 +638,8 @@ const isBits = project.id === 'bits-pilani';
     }
 
     .project-link {
-      opacity: 1;
-      transform: none;
+      /* Keep transition but adjust padding */
+      padding-bottom: 0.25rem;
     }
   }
 </style>

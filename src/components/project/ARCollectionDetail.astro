@@ -1,0 +1,233 @@
+---
+import type { ARProjectItem } from '../../data/projects';
+
+interface Props {
+  items: ARProjectItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<section class="ar-collection-section" aria-labelledby="ar-collection-title">
+  <div class="ar-collection-container">
+    
+    <div class="collection-header">
+      <span class="collection-tag">CURATED EXPERIENCES</span>
+      <h2 id="ar-collection-title" class="collection-title">INDUSTRIAL AR APPLICATIONS</h2>
+      <p class="collection-subtitle">
+        A suite of production and prototype mobile augmented reality systems engineered in Unity to transform industrial machine inspection, procedural maintenance, and technician assessments.
+      </p>
+    </div>
+
+    <div class="ar-grid">
+      {items.map((item, idx) => (
+        <article class="ar-card">
+          <div class="card-top">
+            <span class="card-index">0{idx + 1}</span>
+            <span class="card-category">{item.category}</span>
+          </div>
+
+          <h3 class="card-title">{item.title}</h3>
+          <p class="card-desc">{item.description}</p>
+
+          <div class="card-features">
+            <span class="features-label">KEY CAPABILITIES</span>
+            <ul class="features-list">
+              {item.features.map(feat => (
+                <li class="feature-item">{feat}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="card-tech">
+            {item.technologies.map(tech => (
+              <span class="tech-tag">{tech}</span>
+            ))}
+          </div>
+        </article>
+      ))}
+    </div>
+
+  </div>
+</section>
+
+<style>
+  .ar-collection-section {
+    padding: 10vh 5% 15vh 5%;
+    background-color: #0b0b0d;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .ar-collection-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 5rem;
+  }
+
+  .collection-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 780px;
+  }
+
+  .collection-tag {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    color: var(--color-accent, #C7FF4A);
+    text-transform: uppercase;
+  }
+
+  .collection-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 500;
+    margin: 0;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+
+  .collection-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--color-text-muted, #858585);
+    margin: 0;
+  }
+
+  .ar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2.5rem;
+  }
+
+  .ar-card {
+    background: #111215;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    padding: 2.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+
+  .ar-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(199, 255, 74, 0.3);
+  }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .card-index {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  .card-category {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    color: var(--color-accent, #C7FF4A);
+    text-transform: uppercase;
+  }
+
+  .card-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 500;
+    line-height: 1.25;
+    margin: 0;
+    color: var(--color-text-primary, #F2F0EA);
+    text-transform: uppercase;
+  }
+
+  .card-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.75);
+    margin: 0;
+  }
+
+  .card-features {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .features-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.6875rem;
+    letter-spacing: 0.15em;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+  }
+
+  .features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .feature-item {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.7);
+    position: relative;
+    padding-left: 1.25rem;
+  }
+
+  .feature-item::before {
+    content: '+';
+    position: absolute;
+    left: 0;
+    color: var(--color-accent, #C7FF4A);
+  }
+
+  .card-tech {
+    margin-top: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .tech-tag {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    padding: 0.2rem 0.5rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.65);
+    border-radius: 2px;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 768px) {
+    .ar-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .ar-card {
+      padding: 2rem 1.5rem;
+    }
+  }
+</style>

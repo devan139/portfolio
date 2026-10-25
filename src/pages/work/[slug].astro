@@ -4,6 +4,8 @@ import CustomCursor from '../../components/CustomCursor.astro';
 import ProjectHero from '../../components/project/ProjectHero.astro';
 import ProjectContext from '../../components/project/ProjectContext.astro';
 import ProjectRole from '../../components/project/ProjectRole.astro';
+import SolarCaseStudy from '../../components/project/SolarCaseStudy.astro';
+import ARCollectionDetail from '../../components/project/ARCollectionDetail.astro';
 import ProjectTakeaway from '../../components/project/ProjectTakeaway.astro';
 import ProjectNext from '../../components/project/ProjectNext.astro';
 import Footer from '../../components/sections/Footer.astro';
@@ -36,6 +38,8 @@ const { project } = Astro.props;
     <ProjectHero project={project} />
     <ProjectContext project={project} />
     <ProjectRole project={project} />
+    {project.caseStudy && <SolarCaseStudy caseStudy={project.caseStudy} />}
+    {project.arCollection && <ARCollectionDetail items={project.arCollection} />}
     <ProjectTakeaway project={project} />
     <ProjectNext project={project} />
   </main>

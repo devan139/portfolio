@@ -75,6 +75,9 @@ export class BowlingScene {
 
     // CREATE LANE
     this.createLane();
+    
+    // PREMIUM STUDIO LIGHTING (Reflections)
+    this.createStudioEnvironment();
 
     // BIND EVENTS
     this.bindEvents();
@@ -85,6 +88,38 @@ export class BowlingScene {
     // START LOOP
     this.animate = this.animate.bind(this);
     requestAnimationFrame(this.animate);
+  }
+
+  private createStudioEnvironment() {
+    // Procedural Studio Lighting for premium reflections
+    const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+    pmremGenerator.compileEquirectangularShader();
+    
+    const envScene = new THREE.Scene();
+    envScene.background = new THREE.Color(0x0a0a0a);
+    const boxGeometry = new THREE.PlaneGeometry(20, 20);
+    const boxMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    
+    // Massive softbox on top
+    const light1 = new THREE.Mesh(boxGeometry, boxMaterial);
+    light1.position.set(0, 10, 0);
+    light1.rotation.x = Math.PI / 2;
+    envScene.add(light1);
+    
+    // Rim softbox on left
+    const light2 = new THREE.Mesh(boxGeometry, new THREE.MeshBasicMaterial({ color: 0xc7ff4a }));
+    light2.position.set(-15, 5, -5);
+    light2.rotation.y = Math.PI / 2;
+    envScene.add(light2);
+
+    // Rim softbox on right
+    const light3 = new THREE.Mesh(boxGeometry, boxMaterial);
+    light3.position.set(15, 5, -5);
+    light3.rotation.y = -Math.PI / 2;
+    envScene.add(light3);
+    
+    const envMap = pmremGenerator.fromScene(envScene).texture;
+    this.scene.environment = envMap;
   }
 
   private createLane() {
@@ -136,6 +171,22 @@ export class BowlingScene {
         const center = ballBox.getCenter(new THREE.Vector3());
         ballModel.position.sub(center.multiplyScalar(scale));
         
+        // Premium Material Upgrade
+        ballModel.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+                const oldMat = child.material as THREE.MeshStandardMaterial;
+                child.material = new THREE.MeshPhysicalMaterial({
+                   color: oldMat?.color || 0x111111,
+                   roughness: 0.1, // Highly polished
+                   metalness: 0.3,
+                   clearcoat: 1.0, // Premium resin finish
+                   clearcoatRoughness: 0.1
+                });
+                if (oldMat?.map) child.material.map = oldMat.map;
+                if (oldMat?.normalMap) child.material.normalMap = oldMat.normalMap;
+            }
+        });
+
         this.ballGroup.add(ballModel);
       } else {
         // Fallback ball
@@ -383,9 +434,9 @@ export class BowlingScene {
 
   private triggerStrikeHold() {
     this.strikeState = 'IMPACT';
-    const container = document.getElementById('bowling-section');
     const canvas = document.getElementById('bowling-canvas-container');
     const text = document.getElementById('strike-text');
+    const textH2 = text?.querySelector('h2');
     
     // Add is-holding class to secure them on screen visually
     if (canvas) canvas.classList.add('is-holding');
@@ -397,31 +448,56 @@ export class BowlingScene {
 
     this.strikeTl = gsap.timeline();
 
-    // 1. IMPACT (0.00 -> 0.30s real-time)
+    // -- BULLET TIME EFFECT --
+    const bulletDuration = 2.5;
+    const bulletEase = 'expo.out';
+
+    // 1. Camera Shake (fast & violent at t=0)
+    this.strikeTl.to(this.camera.rotation, {
+      z: 0.05,
+      duration: 0.04,
+      yoyo: true,
+      repeat: 5,
+      ease: 'sine.inOut'
+    }, 0);
+
+    // 2. Text Slam (fast & violent at t=0)
+    if (text) gsap.set(text, { opacity: 1, scale: 1 }); // ensure outer container is visible
+    if (textH2) {
+      gsap.set(textH2, { scale: 3, opacity: 0 }); // start massive and invisible
+      this.strikeTl.to(textH2, {
+        scale: 1.0,
+        opacity: 1,
+        duration: 0.15,
+        ease: 'power4.in' // slams hard
+      }, 0);
+    }
+
+    // 3. Bullet-time explosion of the physical world
     this.strikeTl.to(this.ballGroup.position, {
       z: IMPACT_Z - 5,
-      duration: 0.3,
-      ease: 'power1.out'
+      duration: bulletDuration,
+      ease: bulletEase
     }, 0);
     
     this.strikeTl.to(this.ballGroup.rotation, {
       x: totalRotation * (25 / 20),
-      duration: 0.3,
-      ease: 'power1.out'
+      duration: bulletDuration,
+      ease: bulletEase
     }, 0);
 
     this.strikeTl.to(this.camera.position, {
-      z: IMPACT_Z + 6,
-      y: 1.5,
-      duration: 0.3,
-      ease: 'power1.out'
+      z: IMPACT_Z + 12,
+      y: 2.0,
+      duration: bulletDuration,
+      ease: bulletEase
     }, 0);
 
     this.strikeTl.to(this.cameraTarget, {
       z: IMPACT_Z - 5,
       y: 0,
-      duration: 0.3,
-      ease: 'power1.out'
+      duration: bulletDuration,
+      ease: bulletEase
     }, 0);
 
     this.pins.forEach((pin, i) => {
@@ -432,25 +508,18 @@ export class BowlingScene {
         x: this.pinInitialTransforms[i].position.x + Math.sin(angle) * force,
         z: this.pinInitialTransforms[i].position.z - Math.cos(angle) * force - 4,
         y: 1 + (i % 2),
-        duration: 0.3,
-        ease: 'power1.out'
+        duration: bulletDuration,
+        ease: bulletEase
       }, 0);
 
       this.strikeTl!.to(pin.rotation, {
         x: -(Math.PI / 2) - (i % 2),
         y: angle * 2,
         z: (i % 3),
-        duration: 0.3,
-        ease: 'power1.out'
+        duration: bulletDuration,
+        ease: bulletEase
       }, 0);
     });
-
-    this.strikeTl.to(text, {
-      opacity: 1,
-      scale: 1.05,
-      duration: 0.3,
-      ease: 'power2.out'
-    }, 0);
 
     // 2. HOLD (1000ms real-time delay)
     this.strikeTl.to({}, { duration: 1.0, onStart: () => { this.strikeState = 'STRIKE_HOLD'; } });
@@ -547,6 +616,15 @@ export class BowlingScene {
         this.mouse.x += (this.mouse.targetX - this.mouse.x) * 0.05;
         this.mouse.y += (this.mouse.targetY - this.mouse.y) * 0.05;
 
+        // Interactive Ball Physics
+        if (this.strikeState === 'IDLE' && this.ballGroup) {
+          // Subtle positional shift based on mouse
+          this.ballGroup.position.x = this.mouse.x * 0.5;
+          // Physical rolling/tilting effect
+          this.ballGroup.rotation.y = this.mouse.x * 0.6;
+          this.ballGroup.rotation.z = -this.mouse.x * 0.4;
+        }
+
         // Base X/Y positions updated by GSAP timeline, we inject offset
         this.camera.position.x = this.mouse.x * 0.5;
         // The camera target is animated by GSAP. Apply parallax to lookAt slightly.
@@ -555,7 +633,13 @@ export class BowlingScene {
           this.cameraTarget.y + this.mouse.y * 0.2, // Subtle vertical parallax
           this.cameraTarget.z
         );
+      } else {
+        // Mobile needs to explicitly look at the animated target
+        this.camera.lookAt(this.cameraTarget);
       }
+    } else {
+      // Reduced motion fallback
+      this.camera.lookAt(this.cameraTarget);
     }
 
     this.renderer.render(this.scene, this.camera);
@@ -600,6 +684,7 @@ export class BowlingScene {
   public destroy() {
     this.isDestroyed = true;
     window.removeEventListener('resize', this.onResize);
+    window.removeEventListener('mousemove', this.onMouseMove);
     window.removeEventListener('mousemove', this.onMouseMove);
     
     this.renderer.dispose();

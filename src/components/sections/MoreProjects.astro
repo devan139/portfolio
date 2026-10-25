@@ -1,0 +1,355 @@
+---
+import { moreProjects } from '../../data/projects';
+import { resolvePath } from '../../utils/paths';
+---
+
+<section id="more-projects" class="more-projects-section" aria-labelledby="more-projects-title">
+  <div class="more-projects-container">
+    
+    <div class="section-header gs-reveal-more">
+      <div class="header-left">
+        <span class="section-tag">PROJECT ARCHIVE</span>
+        <h2 id="more-projects-title" class="section-title">VIEW MORE PROJECTS</h2>
+      </div>
+      <p class="section-subtitle">
+        Additional simulations, e-commerce products, 3D web applications, and automation systems.
+      </p>
+    </div>
+
+    <div class="projects-list">
+      {moreProjects.map((project, idx) => (
+        <article class="project-row gs-reveal-row" tabindex="0">
+          <div class="row-meta">
+            <span class="row-number">{(idx + 5).toString().padStart(2, '0')}</span>
+            <div class="row-primary">
+              <div class="title-wrap">
+                <h3 class="row-title">{project.title}</h3>
+                {project.organization && (
+                  <span class="row-org">{project.organization}</span>
+                )}
+              </div>
+              <span class="row-category">{project.category}</span>
+            </div>
+          </div>
+
+          <p class="row-desc">{project.description}</p>
+
+          <div class="row-tech">
+            {project.technologies && project.technologies.slice(0, 4).map((tech) => (
+              <span class="tech-pill">{tech}</span>
+            ))}
+          </div>
+
+          <div class="row-action">
+            {project.link && !project.heroSubtitle ? (
+              <a 
+                href={project.link} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                class="action-link"
+                aria-label={`Visit ${project.title} external source`}
+              >
+                VIEW SOURCE &rarr;
+              </a>
+            ) : (
+              <a 
+                href={resolvePath(`/work/${project.slug}`)} 
+                class="action-link"
+                aria-label={`View ${project.title} details`}
+              >
+                VIEW DETAILS &rarr;
+              </a>
+            )}
+          </div>
+        </article>
+      ))}
+    </div>
+
+  </div>
+</section>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  if (typeof window !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const section = document.getElementById('more-projects');
+
+    if (section && !prefersReducedMotion) {
+      gsap.set('.gs-reveal-more', { opacity: 0, y: 30 });
+      gsap.set('.gs-reveal-row', { opacity: 0, y: 20 });
+
+      ScrollTrigger.create({
+        trigger: section,
+        start: 'top 75%',
+        onEnter: () => {
+          gsap.to('.gs-reveal-more', {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power3.out'
+          });
+
+          gsap.to('.gs-reveal-row', {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            stagger: 0.1,
+            ease: 'power3.out',
+            delay: 0.2
+          });
+        },
+        once: true
+      });
+    } else if (prefersReducedMotion) {
+      gsap.set('.gs-reveal-more, .gs-reveal-row', { opacity: 1, y: 0 });
+    }
+  }
+</script>
+
+<style>
+  .more-projects-section {
+    position: relative;
+    padding: 8rem 5% 10rem 5%;
+    background-color: var(--color-bg, #0A0A0A);
+    color: var(--color-text-primary, #F2F0EA);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .more-projects-container {
+    max-width: var(--container-width, 1200px);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+  }
+
+  /* Header */
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 3rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .section-tag {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    color: var(--color-accent, #C7FF4A);
+    text-transform: uppercase;
+  }
+
+  .section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+    font-weight: 500;
+    margin: 0;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+
+  .section-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--color-text-muted, #858585);
+    max-width: 420px;
+    margin: 0;
+  }
+
+  /* Projects List */
+  .projects-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .project-row {
+    display: grid;
+    grid-template-columns: 2.2fr 2fr 1.8fr 1fr;
+    align-items: center;
+    gap: 2rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    transition: background-color 0.3s ease, padding 0.3s ease;
+  }
+
+  .project-row:hover,
+  .project-row:focus-within {
+    background-color: rgba(255, 255, 255, 0.015);
+  }
+
+  /* Meta: Number, Title, Org, Category */
+  .row-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+  }
+
+  .row-number {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  .row-primary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .title-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .row-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin: 0;
+    letter-spacing: -0.01em;
+    color: var(--color-text-primary, #F2F0EA);
+    transition: color 0.3s ease;
+  }
+
+  .project-row:hover .row-title {
+    color: var(--color-accent, #C7FF4A);
+  }
+
+  .row-org {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    padding: 0.15rem 0.5rem;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.7);
+    border-radius: 2px;
+    text-transform: uppercase;
+  }
+
+  .row-category {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted, #858585);
+    text-transform: uppercase;
+  }
+
+  /* Description */
+  .row-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.65);
+    margin: 0;
+  }
+
+  /* Technologies */
+  .row-tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tech-pill {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    padding: 0.2rem 0.6rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.7);
+    border-radius: 2px;
+    text-transform: uppercase;
+  }
+
+  /* Action */
+  .row-action {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .action-link {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--color-text-primary, #F2F0EA);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 0.2rem;
+    transition: color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .action-link:hover,
+  .action-link:focus-visible {
+    color: var(--color-accent, #C7FF4A);
+    border-color: var(--color-accent, #C7FF4A);
+    transform: translateX(4px);
+    outline: none;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .project-row {
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .row-desc {
+      grid-column: 1 / -1;
+    }
+
+    .row-tech {
+      grid-column: 1;
+    }
+
+    .row-action {
+      grid-column: 2;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .more-projects-section {
+      padding: 6rem 5% 7rem 5%;
+    }
+
+    .section-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1.5rem;
+    }
+
+    .project-row {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      padding: 1.75rem 0;
+    }
+
+    .row-meta {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .row-action {
+      justify-content: flex-start;
+      margin-top: 0.5rem;
+    }
+  }
+</style>

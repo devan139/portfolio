@@ -1,6 +1,7 @@
 ---
 import type { Project } from '../../data/projects';
 import { resolvePath } from '../../utils/paths';
+import { hasProjectImage } from '../../utils/assets';
 
 interface Props {
   project: Project;
@@ -8,7 +9,11 @@ interface Props {
 
 const { project } = Astro.props;
 const isAdnoc = project.id === 'adnoc-vr';
+const isSolar = project.id === 'solar-digital-twin';
+const isAR = project.id === 'ar-applications';
 const isBits = project.id === 'bits-pilani';
+
+const hasImageFile = hasProjectImage(project.image);
 ---
 
 <section class="project-hero">
@@ -16,7 +21,7 @@ const isBits = project.id === 'bits-pilani';
     <div class="project-meta">
       <span class="project-number">{project.number}</span>
       <span class="project-separator">/</span>
-      <span class="project-category">SELECTED WORK</span>
+      <span class="project-category">{project.featured ? 'SELECTED WORK' : 'PROJECT ARCHIVE'}</span>
     </div>
     <a href={resolvePath('/#work')} class="back-link" data-cursor="EXPLORE">&larr; ALL WORK</a>
   </div>
@@ -41,11 +46,40 @@ const isBits = project.id === 'bits-pilani';
           playsinline>
           <source src={resolvePath(project.mediaSrc)} type="video/mp4" />
         </video>
+      ) : hasImageFile && project.image ? (
+        <img src={resolvePath(project.image)} alt={project.title} class="hero-image" />
       ) : (
-        <div class={`abstract-hero-visual ${isAdnoc ? 'adnoc-visual' : isBits ? 'bits-visual' : ''}`}>
+        <div class={`abstract-hero-visual ${isAdnoc ? 'adnoc-visual' : isSolar ? 'solar-visual' : isAR ? 'ar-visual' : isBits ? 'bits-visual' : ''}`}>
            {isAdnoc && (
              <div class="adnoc-grid">
                <div class="scanner-line"></div>
+               {!hasImageFile && <span class="hero-dev-tag">ADNOC VR TRAINING &middot; ASSET AWAITING COVER IMAGE</span>}
+             </div>
+           )}
+           {isSolar && (
+             <div class="solar-hero-scene">
+               <div class="solar-topology">
+                 <div class="solar-row row-1"></div>
+                 <div class="solar-row row-2"></div>
+                 <div class="solar-row row-3"></div>
+                 <div class="solar-array-highlight">
+                   <span class="pulse-marker"></span>
+                   <span class="array-id">ARRAY_04 &middot; SPATIAL 3D MODEL ACTIVE</span>
+                 </div>
+               </div>
+               {!hasImageFile && <span class="hero-dev-tag">SOLAR PLANT DIGITAL TWIN &middot; COVER SCREENSHOT PENDING</span>}
+             </div>
+           )}
+           {isAR && (
+             <div class="ar-hero-scene">
+               <div class="ar-bounding-box">
+                 <div class="corner c-tl"></div>
+                 <div class="corner c-tr"></div>
+                 <div class="corner c-bl"></div>
+                 <div class="corner c-br"></div>
+                 <div class="ar-crosshair"></div>
+                 <span class="ar-status-text">SPATIAL TRACKING ENGINE INITIALIZED</span>
+               </div>
              </div>
            )}
            {isBits && (
@@ -135,10 +169,163 @@ const isBits = project.id === 'bits-pilani';
     will-change: transform, width;
   }
 
-  .hero-video, .abstract-hero-visual {
+  .hero-video, .abstract-hero-visual, .hero-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  .hero-dev-tag {
+    position: absolute;
+    bottom: 2rem;
+    padding: 0.5rem 1rem;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.8);
+    border-radius: 2px;
+    text-transform: uppercase;
+    z-index: 5;
+  }
+
+  /* Solar Hero Scene */
+  .solar-hero-scene {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-image: 
+      radial-gradient(ellipse at 50% 50%, rgba(199, 255, 74, 0.08), transparent 75%),
+      linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 100% 100%, 40px 40px, 40px 40px;
+  }
+
+  .solar-hero-scene .solar-topology {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    width: 65%;
+    max-width: 440px;
+    transform: perspective(700px) rotateX(25deg);
+    transform-style: preserve-3d;
+  }
+
+  .solar-hero-scene .solar-row {
+    height: 44px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.03), rgba(199, 255, 74, 0.06), rgba(255, 255, 255, 0.03));
+    border-radius: 2px;
+  }
+
+  .solar-hero-scene .solar-array-highlight {
+    margin-top: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(10, 10, 10, 0.9);
+    border: 1px solid var(--color-accent);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: 3px;
+    box-shadow: 0 0 25px rgba(199, 255, 74, 0.2);
+  }
+
+  .solar-hero-scene .pulse-marker {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 12px var(--color-accent);
+    animation: pulse-dot 1.8s infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 0.4; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.3); }
+  }
+
+  .solar-hero-scene .array-id {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    color: var(--color-text-primary);
+  }
+
+  /* AR Hero Scene */
+  .ar-hero-scene {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #080808;
+    background-image: radial-gradient(circle at center, rgba(199, 255, 74, 0.04) 0%, transparent 70%);
+  }
+
+  .ar-hero-scene .ar-bounding-box {
+    width: 60%;
+    height: 65%;
+    position: relative;
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+
+  .ar-hero-scene .corner {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--color-accent);
+  }
+  .ar-hero-scene .c-tl { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+  .ar-hero-scene .c-tr { top: -2px; right: -2px; border-left: none; border-bottom: none; }
+  .ar-hero-scene .c-bl { bottom: -2px; left: -2px; border-right: none; border-top: none; }
+  .ar-hero-scene .c-br { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+
+  .ar-hero-scene .ar-crosshair {
+    width: 44px;
+    height: 44px;
+    border: 1px solid rgba(199, 255, 74, 0.6);
+    border-radius: 50%;
+    position: relative;
+  }
+
+  .ar-hero-scene .ar-crosshair::before,
+  .ar-hero-scene .ar-crosshair::after {
+    content: '';
+    position: absolute;
+    background: var(--color-accent);
+  }
+
+  .ar-hero-scene .ar-crosshair::before {
+    top: 50%;
+    left: -8px;
+    right: -8px;
+    height: 1px;
+    transform: translateY(-50%);
+  }
+
+  .ar-hero-scene .ar-crosshair::after {
+    left: 50%;
+    top: -8px;
+    bottom: -8px;
+    width: 1px;
+    transform: translateX(-50%);
+  }
+
+  .ar-hero-scene .ar-status-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.18em;
+    color: var(--color-accent);
+    text-transform: uppercase;
   }
 
   /* Abstract visuals */

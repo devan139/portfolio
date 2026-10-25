@@ -12,7 +12,7 @@ export function initWorkScroll() {
   const mm = gsap.matchMedia();
 
   // Unified logic for all screens (except reduced motion)
-  mm.add("(prefers-reduced-motion: no-preference)", (context) => {
+  mm.add("(prefers-reduced-motion: no-preference)", () => {
     const isMobile = window.innerWidth <= 768;
     const section = document.getElementById('work-section');
     const wrapper = document.getElementById('work-gallery-wrapper');
@@ -27,6 +27,22 @@ export function initWorkScroll() {
       return -(trackWidth - window.innerWidth);
     };
 
+    const calculateSnapPoints = () => {
+      const scrollAmount = Math.abs(getScrollAmount());
+      if (scrollAmount === 0) return [0];
+
+      return projects.map((project) => {
+        const projectCenter = project.offsetLeft + (project.offsetWidth / 2);
+        const viewportCenter = window.innerWidth / 2;
+        let targetX = projectCenter - viewportCenter;
+        
+        if (targetX < 0) targetX = 0;
+        if (targetX > scrollAmount) targetX = scrollAmount;
+
+        return targetX / scrollAmount;
+      });
+    };
+
     // The master horizontal movement tween
     const tween = gsap.to(track, {
       x: getScrollAmount,
@@ -35,13 +51,24 @@ export function initWorkScroll() {
 
     // Pin the section and link horizontal tween to vertical scroll
     ScrollTrigger.create({
+      id: "work-scroll-trigger",
       trigger: section,
       start: "top top",
       end: () => `+=${Math.abs(getScrollAmount())}`, 
       pin: true,
       animation: tween,
       scrub: 1, // Smooth 1-second delay for scrubbing
-      invalidateOnRefresh: true
+      invalidateOnRefresh: true,
+      // Apply soft snapping to actual DOM project centers
+      snap: {
+        snapTo: (progress) => {
+          const points = calculateSnapPoints();
+          return gsap.utils.snap(points, progress);
+        },
+        delay: 0.1,
+        duration: { min: 0.45, max: 0.65 },
+        ease: "power3.out"
+      }
     });
 
     // Handle project active states and spatial transforms using containerAnimation
