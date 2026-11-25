@@ -33,6 +33,17 @@ export interface ARProjectItem {
   technologies: string[];
 }
 
+export interface ProjectModelConfig {
+  folder: string;
+  primaryFile: string;
+  fallbackFiles?: string[];
+  accentColor: string;
+  cameraPosition?: [number, number, number];
+  modelScale?: number;
+  autoRotateSpeed?: number;
+  telemetryBadge?: string;
+}
+
 export interface Project {
   id: string;
   slug: string;
@@ -64,6 +75,7 @@ export interface Project {
   nextProject?: string; // slug of the next project
   caseStudy?: CaseStudyData;
   arCollection?: ARProjectItem[];
+  modelConfig?: ProjectModelConfig;
 }
 
 export const projects: Project[] = [
@@ -82,6 +94,16 @@ export const projects: Project[] = [
     technologies: ['Unity', 'C#', 'VR', '3D interaction', 'Simulation'],
     mediaType: 'image',
     image: '/images/projects/adnoc-vr-cover.png',
+    modelConfig: {
+      folder: '/models/projects/adnoc-vr/',
+      primaryFile: 'adnoc-equipment.glb',
+      fallbackFiles: ['adnoc-environment.glb'],
+      accentColor: '#c7ff4a',
+      cameraPosition: [0, 1.0, 3.5],
+      modelScale: 1.0,
+      autoRotateSpeed: 0.003,
+      telemetryBadge: 'SPATIAL SIMULATION'
+    },
     confidentiality: 'Selected project details are presented at a high level due to project confidentiality.',
     heroSubtitle: 'INDUSTRIAL SIMULATION',
     contextHeadline: 'A TRAINING ENVIRONMENT DESIGNED TO BE EXPERIENCED, NOT JUST OBSERVED.',
@@ -105,6 +127,16 @@ export const projects: Project[] = [
     technologies: ['Three.js', 'React', 'TypeScript', 'FastAPI', 'Python', 'WebSockets', 'Pandas'],
     mediaType: 'image',
     image: '/images/projects/solar-digital-twin-cover.png',
+    modelConfig: {
+      folder: '/models/projects/solar-digital-twin/',
+      primaryFile: 'solar-plant.glb',
+      fallbackFiles: ['solar-panel.glb'],
+      accentColor: '#ffd700',
+      cameraPosition: [0, 1.8, 4.2],
+      modelScale: 1.0,
+      autoRotateSpeed: 0.0025,
+      telemetryBadge: 'ARRAY_04 · 3D READY'
+    },
     heroSubtitle: '3D SPATIAL TELEMETRY SYSTEM',
     contextHeadline: 'CONNECTING SIMULATED TELEMETRY TO AN INTERACTIVE 3D SOLAR ASSET MODEL.',
     contextDescription: 'A browser-based digital twin prototype connecting simulated equipment telemetry to an interactive 3D solar plant, providing a unified view of asset status, performance, and operational alerts.',
@@ -245,6 +277,16 @@ export const projects: Project[] = [
     mediaType: 'video',
     mediaSrc: '/videos/vr-molecular-lab.mp4',
     poster: '/images/vr-molecular-lab-poster.jpg',
+    modelConfig: {
+      folder: '/models/projects/molecular-lab/',
+      primaryFile: 'molecular-structure.glb',
+      fallbackFiles: [],
+      accentColor: '#00e5ff',
+      cameraPosition: [0, 0, 3.2],
+      modelScale: 1.0,
+      autoRotateSpeed: 0.004,
+      telemetryBadge: 'PHYSICS SIMULATION'
+    },
     link: 'https://github.com/devan139/VR-Molecular-Lab',
     heroSubtitle: 'IMMERSIVE SCIENTIFIC TRAINING',
     contextHeadline: 'MAKING THE INVISIBLE TANGIBLE.',
@@ -264,6 +306,16 @@ export const projects: Project[] = [
     role: 'XR Engineer / Unity Developer',
     technologies: ['Unity', 'C#', 'AR Foundation', 'Mobile AR', 'XR Interaction Toolkit', 'LeanTouch'],
     mediaType: 'abstract',
+    modelConfig: {
+      folder: '/models/projects/ar-applications/',
+      primaryFile: 'ar-device.glb',
+      fallbackFiles: [],
+      accentColor: '#ff4081',
+      cameraPosition: [0, 0.4, 3.2],
+      modelScale: 1.0,
+      autoRotateSpeed: 0.003,
+      telemetryBadge: 'SPATIAL ANCHOR 3D'
+    },
     heroSubtitle: 'AUGMENTED REALITY EXPERIENCES',
     contextHeadline: 'BRINGING INTERACTIVE 3D INSTRUCTIONS DIRECTLY ONTO PHYSICAL EQUIPMENT.',
     contextDescription: 'A collection of mobile augmented reality applications engineered for real-world equipment training. By overlaying digital 3D models and procedural instructions directly onto physical machinery, these apps replace paper documentation with guided spatial learning and verifiable assessments.',

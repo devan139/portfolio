@@ -49,6 +49,24 @@ export function initWorkScroll() {
       ease: "none"
     });
 
+    // Smooth entrance reveal for the first project when entering Selected Work
+    if (projects.length > 0) {
+      gsap.fromTo(projects[0],
+        { opacity: 0.4, scale: 0.94 },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.8,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: section,
+            start: "top 75%",
+            toggleActions: "play none none none"
+          }
+        }
+      );
+    }
+
     // Pin the section and link horizontal tween to vertical scroll
     ScrollTrigger.create({
       id: "work-scroll-trigger",
@@ -120,6 +138,9 @@ export function initWorkScroll() {
           }
         }
       });
+    });
+    window.addEventListener('bowling-intro-completed', () => {
+      ScrollTrigger.refresh();
     });
   });
   

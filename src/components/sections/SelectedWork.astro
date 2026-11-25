@@ -1,21 +1,19 @@
 ---
-import WorkEnvironment from '../WorkEnvironment.astro';
-import HorizontalWorkGallery from '../HorizontalWorkGallery.astro';
+import SectionHeading from '../SectionHeading.astro';
+import MacFolderGallery from '../MacFolderGallery.astro';
 import { featuredProjects } from '../../data/projects';
 ---
 
 <div id="work"></div>
-<section id="work-section" class="selected-work-section">
-  <WorkEnvironment totalProjects={featuredProjects.length} />
-  <HorizontalWorkGallery projects={featuredProjects} />
+<section id="work-section" class="selected-work-section" aria-label="Selected XR Engineering Projects">
+  <div class="section-container">
+    <SectionHeading 
+      title="SELECTED PROJECTS" 
+      subtitle="SYSTEM DIRECTORY · XR EXPERIENCES" 
+    />
+    <MacFolderGallery projects={featuredProjects} />
+  </div>
 </section>
-
-<script>
-  import { initWorkScroll } from '../../lib/workScroll';
-  
-  // Astro runs this script deferred by default, so DOM is ready.
-  initWorkScroll();
-</script>
 
 <style>
   .selected-work-section {
@@ -23,12 +21,18 @@ import { featuredProjects } from '../../data/projects';
     width: 100%;
     background-color: var(--background-color, #0a0a0a);
     color: var(--text-color, #ffffff);
-    /* GSAP will pin this section */
+    padding: 6rem 5% 4rem 5%;
+    overflow: hidden;
   }
 
-  /* Global styles specifically for the custom cursor interactions within this section */
-  :global([data-cursor="VIEW"]:hover ~ .custom-cursor) {
-    /* If you have a custom cursor component that responds to these, we can hook into it. 
-       Usually managed by JS in CustomCursor.astro */
+  .section-container {
+    max-width: var(--container-width, 1400px);
+    margin: 0 auto;
+  }
+
+  @media (max-width: 768px) {
+    .selected-work-section {
+      padding: 4rem 4% 3rem 4%;
+    }
   }
 </style>

@@ -1,6 +1,6 @@
 ---
 ---
-<section class="bowling-intro-section" id="bowling-section">
+<section class="bowling-intro-section" id="bowling-section" aria-label="Interactive Hero Introduction">
   <!-- Interactive WebGL Canvas Container -->
   <div class="bowling-canvas-container" id="bowling-canvas-container">
     <div class="loading-state" id="bowling-loading">LOADING EXPERIENCE</div>
@@ -16,8 +16,22 @@
   </div>
 
   <!-- Strike Overlay -->
-  <div class="strike-overlay" id="strike-text">
+  <div class="strike-overlay" id="strike-text" aria-hidden="true">
     <h2>STRIKE</h2>
+  </div>
+
+  <!-- Discreet Skip Intro Control -->
+  <button class="skip-intro-btn" id="skip-intro-btn" type="button" aria-label="Skip Introduction Animation">
+    <span class="skip-label">SKIP INTRO</span>
+    <span class="skip-badge">ESC</span>
+  </button>
+
+  <!-- Scroll Prompt -->
+  <div class="hero-scroll-prompt" id="hero-scroll-prompt" role="button" tabindex="0" aria-label="Scroll to launch bowling ball">
+    <span class="prompt-text">SCROLL TO ROLL</span>
+    <div class="prompt-track">
+      <div class="prompt-dot"></div>
+    </div>
   </div>
 </section>
 
@@ -25,27 +39,40 @@
   import { BowlingScene } from '../../lib/bowlingScene';
   import { resolvePath } from '../../utils/paths';
 
-  let scene: BowlingScene;
+  let scene: BowlingScene | null = null;
 
   document.addEventListener('DOMContentLoaded', () => {
     const ballUrl = resolvePath('/models/bowling-ball.glb');
     const pinUrl = resolvePath('/models/bowling-pin.glb');
-    scene = new BowlingScene('bowling-canvas-container', ballUrl, pinUrl);
+    try {
+      scene = new BowlingScene('bowling-canvas-container', ballUrl, pinUrl);
+    } catch (e) {
+      console.warn('[BowlingIntro] Scene initialization error:', e);
+    }
   });
 
-  // Cleanup on page transitions (if using Astro View Transitions in the future)
+  // Cleanup on page transitions / lifecycle
   document.addEventListener('astro:before-swap', () => {
-    if (scene) scene.destroy();
+    if (scene) {
+      scene.destroy();
+      scene = null;
+    }
   });
 </script>
 
 <style>
+  :global(html.intro-locked),
+  :global(body.intro-locked) {
+    overflow: hidden !important;
+    touch-action: none !important;
+  }
+
   .bowling-intro-section {
     min-height: 100vh;
     width: 100%;
     position: relative;
     z-index: 10;
-    overflow: hidden; /* Keep canvas constrained horizontally */
+    overflow: hidden;
     background-color: var(--color-bg, #0A0A0A);
   }
 
@@ -55,9 +82,9 @@
     width: 100%;
     height: 100%;
     z-index: 1;
+    transition: opacity 0.5s ease;
   }
 
-  /* Make the canvas block-level and cover */
   .bowling-canvas-container :global(canvas) {
     display: block;
     width: 100% !important;
@@ -69,45 +96,49 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 0.875rem;
-    letter-spacing: 0.2em;
-    color: var(--color-text-muted);
+    font-family: 'Space Grotesk', monospace, sans-serif;
+    font-size: 0.8125rem;
+    letter-spacing: 0.25em;
+    color: var(--color-text-muted, #888888);
     z-index: 2;
+    pointer-events: none;
   }
 
-  /* GSAP will animate this away, so it sits on top */
   .hero-content {
     position: absolute;
-    top: max(20vh, 120px);
+    top: max(18vh, 110px);
     left: 5%;
     z-index: 10;
-    pointer-events: none; /* Let mouse interact with 3D canvas */
+    pointer-events: none;
+    max-width: 900px;
+    will-change: transform, opacity;
   }
 
   .hero-label {
-    color: var(--color-accent);
+    color: var(--color-accent, #c7ff4a);
+    font-family: 'Space Grotesk', monospace, sans-serif;
     font-size: 0.875rem;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     font-weight: 500;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     text-transform: uppercase;
   }
 
   .hero-title {
-    font-size: clamp(3rem, 7vw, 6.5rem);
-    letter-spacing: -0.02em;
+    font-size: clamp(2.75rem, 6.5vw, 6rem);
+    letter-spacing: -0.025em;
     margin: 0;
     text-transform: uppercase;
-    color: var(--color-text-primary);
-    line-height: 1.1;
+    color: var(--color-text-primary, #ffffff);
+    line-height: 1.08;
+    font-weight: 700;
   }
 
   .title-sub {
     display: block;
-    font-size: clamp(1.25rem, 3vw, 2.5rem);
+    font-size: clamp(1.15rem, 2.75vw, 2.25rem);
     margin-top: 1rem;
-    color: var(--color-text-muted);
+    color: var(--color-text-muted, #888888);
     font-weight: 400;
     letter-spacing: -0.01em;
   }
@@ -118,25 +149,136 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 10;
+    z-index: 15;
     pointer-events: none;
-    opacity: 0; /* GSAP will animate */
+    opacity: 0;
   }
 
   .strike-overlay h2 {
-    font-size: clamp(4rem, 15vw, 15rem);
+    font-size: clamp(4rem, 16vw, 16rem);
     margin: 0;
-    font-weight: 500;
-    letter-spacing: -0.02em;
-    color: var(--color-text-primary);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary, #ffffff);
+    text-transform: uppercase;
+    line-height: 1;
+    text-shadow: 0 0 60px rgba(199, 255, 74, 0.25);
+  }
+
+  /* Discreet Skip Intro Button */
+  .skip-intro-btn {
+    position: absolute;
+    top: 2rem;
+    right: 5%;
+    z-index: 25;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.85rem;
+    background: rgba(20, 20, 20, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    color: var(--color-text-muted, #aaaaaa);
+    font-family: 'Space Grotesk', monospace, sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .skip-intro-btn:hover {
+    background: rgba(30, 30, 30, 0.9);
+    border-color: var(--color-accent, #c7ff4a);
+    color: #ffffff;
+    transform: translateY(-1px);
+  }
+
+  .skip-badge {
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    font-size: 0.65rem;
+    color: var(--color-accent, #c7ff4a);
+  }
+
+  /* Scroll to roll prompt */
+  .hero-scroll-prompt {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+    user-select: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .prompt-text {
+    font-family: 'Space Grotesk', monospace, sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    color: var(--color-text-muted, #777777);
     text-transform: uppercase;
   }
 
-  /* Applied dynamically via GSAP during the strike hold */
-  .is-holding {
-    position: fixed !important;
-    inset: 0 !important;
-    z-index: 9999 !important;
-    pointer-events: none !important;
+  .prompt-track {
+    width: 1px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.15);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .prompt-dot {
+    position: absolute;
+    top: 0;
+    left: -1px;
+    width: 3px;
+    height: 10px;
+    background: var(--color-accent, #c7ff4a);
+    border-radius: 2px;
+    animation: promptScroll 2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  }
+
+  @keyframes promptScroll {
+    0% {
+      transform: translateY(-10px);
+      opacity: 0;
+    }
+    30% {
+      opacity: 1;
+    }
+    70% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(35px);
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hero-content {
+      top: 15vh;
+      left: 6%;
+      right: 6%;
+    }
+
+    .skip-intro-btn {
+      top: 1.5rem;
+      right: 6%;
+      padding: 0.4rem 0.7rem;
+      font-size: 0.7rem;
+    }
+
+    .hero-scroll-prompt {
+      bottom: 2rem;
+    }
   }
 </style>

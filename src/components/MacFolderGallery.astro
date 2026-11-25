@@ -1,0 +1,915 @@
+---
+// src/components/MacFolderGallery.astro
+import type { Project } from '../data/projects';
+import { resolvePath } from '../utils/paths';
+import { hasProjectImage } from '../utils/assets';
+
+interface Props {
+  projects: Project[];
+}
+
+const { projects } = Astro.props;
+
+const folderThemes = [
+  { id: 'adnoc-vr', tagColor: '#c7ff4a', tagText: 'XR.SIM', icon: 'industrial' },
+  { id: 'solar-digital-twin', tagColor: '#ffb300', tagText: 'TWIN.3D', icon: 'solar' },
+  { id: 'vr-molecular-lab', tagColor: '#00e5ff', tagText: 'LAB.VR', icon: 'molecule' },
+  { id: 'ar-applications', tagColor: '#ff4081', tagText: 'AR.VISION', icon: 'spatial' }
+];
+---
+
+<div class="mac-gallery-container" id="mac-folders-gallery">
+  <!-- macOS Window Frame Header -->
+  <div class="mac-window-header">
+    <div class="mac-traffic-lights" aria-hidden="true">
+      <span class="light red"></span>
+      <span class="light yellow"></span>
+      <span class="light green"></span>
+    </div>
+    <div class="mac-window-path">
+      <span class="path-root">~/devanarayanan</span>
+      <span class="path-sep">/</span>
+      <span class="path-seg">selected-projects</span>
+    </div>
+    <div class="mac-window-status">
+      <span class="status-count">{projects.length} ITEMS</span>
+    </div>
+  </div>
+
+  <!-- macOS Folder Dock / Shelf -->
+  <div class="mac-folders-shelf" id="folders-shelf" role="tablist" aria-label="Project Folders">
+    {projects.map((project, index) => {
+      const theme = folderThemes[index] || { tagColor: '#c7ff4a', tagText: 'DIR', icon: 'folder' };
+      const hasImage = hasProjectImage(project.image);
+      const isFirst = index === 0;
+
+      return (
+        <button
+          type="button"
+          class={`mac-folder-item ${isFirst ? 'is-active' : ''}`}
+          id={`folder-btn-${project.id}`}
+          role="tab"
+          aria-selected={isFirst ? "true" : "false"}
+          aria-controls={`quicklook-panel-${project.id}`}
+          data-project-id={project.id}
+          data-index={index}
+          style={`--folder-accent: ${theme.tagColor};`}
+        >
+          <div class="folder-wrapper">
+            <!-- Back flap with tab -->
+            <div class="folder-back">
+              <div class="folder-tab">
+                <span class="tab-tag" style={`background-color: ${theme.tagColor};`}></span>
+                <span class="tab-label">{theme.tagText}</span>
+              </div>
+            </div>
+
+            <!-- Slide-out Thumbnail Preview (zooms and reveals on hover/active) -->
+            <div class="folder-thumbnail-card">
+              <div class="thumbnail-inner">
+                {project.mediaType === 'video' && project.mediaSrc ? (
+                  <video 
+                    class="thumb-video" 
+                    poster={project.poster ? resolvePath(project.poster) : ''}
+                    muted 
+                    loop 
+                    playsinline
+                    preload="metadata"
+                  >
+                    <source src={resolvePath(project.mediaSrc)} type="video/mp4" />
+                  </video>
+                ) : hasImage && project.image ? (
+                  <img src={resolvePath(project.image)} alt={project.title} class="thumb-image" loading="lazy" />
+                ) : (
+                  <div class="thumb-fallback" style={`background: radial-gradient(circle at center, ${theme.tagColor}22 0%, #0a0e14 80%);`}>
+                    <span class="fallback-code">{project.number}</span>
+                  </div>
+                )}
+                <div class="thumbnail-glass-glare"></div>
+              </div>
+            </div>
+
+            <!-- Front flap with frosted acrylic look -->
+            <div class="folder-front">
+              <div class="folder-crease"></div>
+              <div class="folder-front-content">
+                <span class="folder-num">{project.number}</span>
+                <span class="folder-code-name">{project.organization || 'PROJECT'}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Folder Name Label -->
+          <div class="folder-meta-label">
+            <span class="folder-name">{project.title}</span>
+            <span class="folder-sub">{project.category}</span>
+          </div>
+        </button>
+      );
+    })}
+  </div>
+
+  <!-- macOS Quick Look / Spotlight Detail Stage -->
+  <div class="mac-quicklook-stage" id="quicklook-stage">
+    {projects.map((project, index) => {
+      const theme = folderThemes[index] || { tagColor: '#c7ff4a', tagText: 'DIR', icon: 'folder' };
+      const hasImage = hasProjectImage(project.image);
+      const isFirst = index === 0;
+
+      return (
+        <article
+          class={`quicklook-panel ${isFirst ? 'is-active' : ''}`}
+          id={`quicklook-panel-${project.id}`}
+          role="tabpanel"
+          aria-labelledby={`folder-btn-${project.id}`}
+          data-panel-id={project.id}
+          style={`--panel-accent: ${theme.tagColor};`}
+        >
+          <!-- Media Preview (Enlarged) -->
+          <div class="quicklook-media-col">
+            <div class="enlarged-media-container">
+              {project.mediaType === 'video' && project.mediaSrc ? (
+                <video 
+                  class="enlarged-video" 
+                  controls 
+                  muted 
+                  loop 
+                  playsinline
+                  poster={project.poster ? resolvePath(project.poster) : ''}
+                >
+                  <source src={resolvePath(project.mediaSrc)} type="video/mp4" />
+                  Your browser does not support video.
+                </video>
+              ) : hasImage && project.image ? (
+                <img src={resolvePath(project.image)} alt={project.title} class="enlarged-image" />
+              ) : (
+                <div class="enlarged-fallback" style={`background: radial-gradient(circle at center, ${theme.tagColor}25 0%, #070a0f 85%);`}>
+                  <div class="fallback-reticle">
+                    <span class="fallback-tag">{project.category}</span>
+                    <span class="fallback-sub">SPATIAL COMPUTING EXPERIENCE</span>
+                  </div>
+                </div>
+              )}
+              
+              <!-- Subtle HUD badge -->
+              <div class="media-hud-tag">
+                <span class="hud-indicator" style={`background-color: ${theme.tagColor};`}></span>
+                <span class="hud-text">{project.modelConfig?.telemetryBadge || 'INTERACTIVE PREVIEW'}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Editorial Details Col -->
+          <div class="quicklook-info-col">
+            <div class="info-header">
+              <div class="index-row">
+                <span class="info-number">{project.number}</span>
+                {project.organization && <span class="info-org">{project.organization}</span>}
+                {project.isHero && <span class="info-badge">FEATURED</span>}
+              </div>
+              <h3 class="info-title">{project.title}</h3>
+              <p class="info-category" style={`color: ${theme.tagColor};`}>{project.category}</p>
+            </div>
+
+            <p class="info-description">{project.description}</p>
+
+            <div class="info-meta-groups">
+              {project.role && (
+                <div class="meta-row">
+                  <span class="meta-key">ROLE</span>
+                  <span class="meta-val">{project.role}</span>
+                </div>
+              )}
+              {project.technologies && (
+                <div class="meta-row">
+                  <span class="meta-key">STACK</span>
+                  <span class="meta-val">{project.technologies.join(' · ')}</span>
+                </div>
+              )}
+              {project.confidentiality && (
+                <p class="meta-confidentiality">* {project.confidentiality}</p>
+              )}
+            </div>
+
+            <div class="info-actions">
+              <a 
+                href={resolvePath(`/work/${project.slug}`)} 
+                class="enter-experience-btn"
+                aria-label={`Open ${project.title} Case Study`}
+              >
+                <span>OPEN PROJECT FILE</span>
+                <span class="btn-arrow">&rarr;</span>
+              </a>
+            </div>
+          </div>
+        </article>
+      );
+    })}
+  </div>
+</div>
+
+<script>
+  import { gsap } from 'gsap';
+
+  function initMacFolders() {
+    const shelf = document.getElementById('folders-shelf');
+    const folderButtons = document.querySelectorAll<HTMLButtonElement>('.mac-folder-item');
+    const panels = document.querySelectorAll<HTMLElement>('.quicklook-panel');
+
+    if (!shelf || folderButtons.length === 0) return;
+
+    // 1. macOS Dock Magnification on Mouse Move
+    const maxScale = 1.15;
+    const neighborScale = 1.05;
+
+    shelf.addEventListener('mousemove', (e: MouseEvent) => {
+      const shelfRect = shelf.getBoundingClientRect();
+      const mouseX = e.clientX;
+
+      folderButtons.forEach((btn) => {
+        const btnRect = btn.getBoundingClientRect();
+        const btnCenter = btnRect.left + btnRect.width / 2;
+        const distance = Math.abs(mouseX - btnCenter);
+        const radius = btnRect.width * 1.5;
+
+        if (distance < radius) {
+          const ratio = 1 - (distance / radius);
+          const targetScale = 1 + (ratio * (maxScale - 1));
+          const targetY = -ratio * 12;
+          gsap.to(btn, {
+            scale: targetScale,
+            y: targetY,
+            duration: 0.2,
+            ease: 'power2.out',
+            overwrite: 'auto'
+          });
+        } else {
+          gsap.to(btn, {
+            scale: 1,
+            y: 0,
+            duration: 0.3,
+            ease: 'power2.out',
+            overwrite: 'auto'
+          });
+        }
+      });
+    });
+
+    shelf.addEventListener('mouseleave', () => {
+      folderButtons.forEach((btn) => {
+        gsap.to(btn, {
+          scale: 1,
+          y: 0,
+          duration: 0.4,
+          ease: 'power2.out',
+          overwrite: 'auto'
+        });
+      });
+    });
+
+    // 2. Folder Selection / Switching
+    folderButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const projectId = btn.dataset.projectId;
+        if (!projectId) return;
+
+        // Update Buttons
+        folderButtons.forEach((b) => {
+          const isCurrent = b === btn;
+          b.classList.toggle('is-active', isCurrent);
+          b.setAttribute('aria-selected', isCurrent ? 'true' : 'false');
+        });
+
+        // Switch Active Panel with quick, smooth slide/fade
+        panels.forEach((panel) => {
+          const isTarget = panel.dataset.panelId === projectId;
+          if (isTarget) {
+            panel.classList.add('is-active');
+            gsap.fromTo(panel, 
+              { opacity: 0, y: 15 },
+              { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }
+            );
+
+            // Auto-play preview video if present
+            const video = panel.querySelector<HTMLVideoElement>('video');
+            if (video && video.paused) {
+              video.play().catch(() => {});
+            }
+          } else {
+            panel.classList.remove('is-active');
+            const video = panel.querySelector<HTMLVideoElement>('video');
+            if (video && !video.paused) {
+              video.pause();
+            }
+          }
+        });
+      });
+    });
+
+    // 3. Keyboard Arrow Navigation
+    shelf.addEventListener('keydown', (e: KeyboardEvent) => {
+      const activeBtn = shelf.querySelector<HTMLButtonElement>('.mac-folder-item.is-active');
+      if (!activeBtn) return;
+
+      const currentIndex = Number(activeBtn.dataset.index || 0);
+
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        const nextIndex = (currentIndex + 1) % folderButtons.length;
+        folderButtons[nextIndex]?.click();
+        folderButtons[nextIndex]?.focus();
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        const prevIndex = (currentIndex - 1 + folderButtons.length) % folderButtons.length;
+        folderButtons[prevIndex]?.click();
+        folderButtons[prevIndex]?.focus();
+      }
+    });
+  }
+
+  // Init on DOM ready and Astro transitions
+  document.addEventListener('DOMContentLoaded', initMacFolders);
+  document.addEventListener('astro:page-load', initMacFolders);
+</script>
+
+<style>
+  .mac-gallery-container {
+    width: 90%;
+    max-width: 1400px;
+    margin: 4rem auto 6rem auto;
+    background: rgba(12, 16, 22, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 10;
+  }
+
+  /* Header Bar */
+  .mac-window-header {
+    height: 44px;
+    background: rgba(20, 24, 32, 0.85);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.25rem;
+    user-select: none;
+  }
+
+  .mac-traffic-lights {
+    display: flex;
+    gap: 7px;
+  }
+
+  .mac-traffic-lights .light {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+  }
+
+  .light.red { background: #ff5f56; box-shadow: 0 0 6px rgba(255, 95, 86, 0.4); }
+  .light.yellow { background: #ffbd2e; box-shadow: 0 0 6px rgba(255, 189, 46, 0.4); }
+  .light.green { background: #27c93f; box-shadow: 0 0 6px rgba(39, 201, 63, 0.4); }
+
+  .mac-window-path {
+    font-family: 'Space Grotesk', monospace, sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.6);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .path-sep { color: rgba(255, 255, 255, 0.25); }
+  .path-seg { color: #ffffff; font-weight: 500; }
+
+  .mac-window-status {
+    font-family: 'Space Grotesk', monospace, sans-serif;
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+  }
+
+  /* macOS Folder Shelf / Dock */
+  .mac-folders-shelf {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    padding: 2.5rem 2rem 1.5rem 2rem;
+    background: linear-gradient(180deg, rgba(16, 20, 28, 0.5) 0%, rgba(8, 11, 16, 0.8) 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    position: relative;
+  }
+
+  .mac-folder-item {
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    padding: 0;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .folder-wrapper {
+    width: 100%;
+    max-width: 220px;
+    height: 150px;
+    position: relative;
+    perspective: 800px;
+  }
+
+  /* Back Flap */
+  .folder-back {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(40, 48, 64, 0.7), rgba(20, 25, 36, 0.9));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px 14px 8px 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    z-index: 1;
+  }
+
+  .folder-tab {
+    position: absolute;
+    top: -14px;
+    left: 8px;
+    height: 14px;
+    width: 70px;
+    background: rgba(40, 48, 64, 0.8);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-left: 1px solid rgba(255, 255, 255, 0.15);
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px 6px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0 0.4rem;
+  }
+
+  .tab-tag {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+  }
+
+  .tab-label {
+    font-family: 'Space Grotesk', monospace, sans-serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 600;
+  }
+
+  /* Slide-out Thumbnail Preview */
+  .folder-thumbnail-card {
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    top: 15px;
+    height: 110px;
+    z-index: 2;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+    transform: translateY(0);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .thumbnail-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background: #000000;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .thumb-image, .thumb-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .thumb-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .fallback-code {
+    font-family: 'Space Grotesk', monospace, sans-serif;
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 700;
+  }
+
+  .thumbnail-glass-glare {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* Front Flap */
+  .folder-front {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 90px;
+    background: linear-gradient(180deg, rgba(32, 40, 56, 0.85) 0%, rgba(18, 24, 34, 0.95) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 4px 4px 8px 8px;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0.6rem 0.8rem;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.25);
+  }
+
+  .folder-front-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .folder-num {
+    font-family: 'Space Grotesk', monospace, sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--folder-accent, #c7ff4a);
+  }
+
+  .folder-code-name {
+    font-family: 'Space Grotesk', monospace, sans-serif;
+    font-size: 0.625rem;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+  }
+
+  /* Folder Hover & Active State */
+  .mac-folder-item:hover .folder-thumbnail-card,
+  .mac-folder-item.is-active .folder-thumbnail-card {
+    transform: translateY(-40px) scale(1.08);
+    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.6), 0 0 20px var(--folder-accent);
+  }
+
+  .mac-folder-item.is-active .folder-front {
+    border-color: var(--folder-accent, #c7ff4a);
+  }
+
+  .folder-meta-label {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .folder-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+  }
+
+  .folder-sub {
+    font-family: 'Space Grotesk', monospace, sans-serif;
+    font-size: 0.6875rem;
+    color: var(--folder-accent, #888888);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* Quick Look Stage */
+  .mac-quicklook-stage {
+    padding: 2.5rem;
+    background: rgba(8, 11, 16, 0.6);
+    min-height: 480px;
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+
+  .quicklook-panel {
+    display: none;
+    width: 100%;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 3.5rem;
+    align-items: center;
+  }
+
+  .quicklook-panel.is-active {
+    display: grid;
+    animation: fadeInQuickLook 0.4s ease-out forwards;
+  }
+
+  @keyframes fadeInQuickLook {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Media Column */
+  .quicklook-media-col {
+    width: 100%;
+  }
+
+  .enlarged-media-container {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #030508;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+    position: relative;
+  }
+
+  .enlarged-image, .enlarged-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background-color: #030508;
+    display: block;
+  }
+
+  .enlarged-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .fallback-reticle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    padding: 2rem;
+    border-radius: 6px;
+  }
+
+  .fallback-tag {
+    font-family: 'Space Grotesk', monospace, sans-serif;
+    font-size: 0.875rem;
+    color: var(--panel-accent, #c7ff4a);
+    letter-spacing: 0.12em;
+  }
+
+  .fallback-sub {
+    font-size: 0.6875rem;
+    letter-spacing: 0.15em;
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .media-hud-tag {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.65rem;
+    background: rgba(10, 14, 20, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    backdrop-filter: blur(8px);
+  }
+
+  .hud-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  .hud-text {
+    font-family: 'Space Grotesk', monospace, sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: rgba(255, 255, 255, 0.8);
+    text-transform: uppercase;
+  }
+
+  /* Info Column */
+  .quicklook-info-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .index-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: 'Space Grotesk', monospace, sans-serif;
+  }
+
+  .info-number {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 700;
+  }
+
+  .info-org {
+    font-size: 0.8125rem;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+  }
+
+  .info-badge {
+    font-size: 0.625rem;
+    letter-spacing: 0.15em;
+    padding: 0.15rem 0.45rem;
+    background: rgba(199, 255, 74, 0.1);
+    color: var(--color-accent, #c7ff4a);
+    border: 1px solid rgba(199, 255, 74, 0.3);
+    border-radius: 2px;
+    font-weight: 600;
+    margin-left: auto;
+  }
+
+  .info-title {
+    font-size: clamp(2rem, 3.2vw, 3rem);
+    font-weight: 600;
+    line-height: 1.1;
+    margin: 0.4rem 0 0.2rem 0;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+  }
+
+  .info-category {
+    font-family: 'Space Grotesk', monospace, sans-serif;
+    font-size: 0.8125rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  .info-description {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.75);
+    margin: 0;
+  }
+
+  .info-meta-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8125rem;
+  }
+
+  .meta-key {
+    font-family: 'Space Grotesk', monospace, sans-serif;
+    width: 60px;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+  }
+
+  .meta-val {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .meta-confidentiality {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-style: italic;
+    margin: 0.25rem 0 0 0;
+  }
+
+  .enter-experience-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1.6rem;
+    background: #ffffff;
+    color: #000000;
+    border-radius: 4px;
+    font-family: 'Space Grotesk', monospace, sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    align-self: flex-start;
+  }
+
+  .enter-experience-btn:hover {
+    background: var(--panel-accent, #c7ff4a);
+    color: #000000;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  }
+
+  .btn-arrow {
+    transition: transform 0.3s ease;
+  }
+
+  .enter-experience-btn:hover .btn-arrow {
+    transform: translateX(4px);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .mac-folders-shelf {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+    }
+
+    .quicklook-panel {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .quicklook-stage {
+      padding: 1.75rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .mac-gallery-container {
+      width: 95%;
+      margin: 2rem auto 4rem auto;
+    }
+
+    .mac-folders-shelf {
+      grid-template-columns: 1fr 1fr;
+      padding: 1.5rem 1rem;
+      gap: 1rem;
+    }
+
+    .folder-wrapper {
+      height: 120px;
+    }
+
+    .folder-front {
+      height: 70px;
+    }
+
+    .folder-name {
+      font-size: 0.75rem;
+      max-width: 140px;
+    }
+
+    .folder-sub {
+      font-size: 0.6rem;
+    }
+
+    .quicklook-stage {
+      padding: 1.25rem;
+    }
+
+    .info-title {
+      font-size: 1.6rem;
+    }
+
+    .info-description {
+      font-size: 0.875rem;
+    }
+  }
+</style>
